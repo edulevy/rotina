@@ -20,8 +20,14 @@
   --warn-bg:#3a2f12; --warn-ink:#f1d48a; color-scheme:dark}}
 
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+/* jeito de app: a página não rola nem estica; só o <main> rola, sem barrinha e sem zoom */
+html{-webkit-text-size-adjust:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;display:flex;flex-direction:column;
+  background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+*{scrollbar-width:none}
+*::-webkit-scrollbar{display:none;width:0;height:0}
+button,summary,.tabbar,.chk,.stepper,.seg,.weeknav,.daytabs{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 h1,h2,h3{margin:0;line-height:1.15;text-wrap:balance}
 p{margin:0}
 button{font:inherit;color:inherit}
@@ -32,17 +38,18 @@ button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 /* topo e abas */
-.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
-  padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;border-bottom:1px solid var(--line)}
+.top{flex:none;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);
+  padding:calc(env(safe-area-inset-top) + 10px) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left))}
 .top-in{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:2px}
 .top h1{font-size:1.75rem;font-weight:800;letter-spacing:-.01em}
-main{max-width:760px;margin:0 auto;padding:16px 16px calc(var(--tabh) + env(safe-area-inset-bottom) + 28px)}
-.view{display:flex;flex-direction:column;gap:14px}
+main{flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  padding:16px max(16px, env(safe-area-inset-right)) calc(var(--tabh) + env(safe-area-inset-bottom) + 28px) max(16px, env(safe-area-inset-left))}
+.view{display:flex;flex-direction:column;gap:14px;max-width:760px;margin:0 auto;min-width:0}
 .view[hidden]{display:none}
 .sec{font-size:1.15rem;margin-top:8px}
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;justify-content:space-around;
   background:color-mix(in srgb,var(--surface) 90%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
-  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+  border-top:1px solid var(--line);padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 .tabbar button{flex:1;height:var(--tabh);border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:.68rem;font-weight:600;color:var(--muted);cursor:pointer}
 .tabbar svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .tabbar svg .fill{fill:currentColor;stroke:none}
@@ -182,7 +189,7 @@ td.num{white-space:nowrap}
 .legend i{width:12px;height:12px;border-radius:3px;flex:none;background:var(--c)}
 .legend .h{margin-left:auto;font-family:var(--f-data);color:var(--muted)}
 @media (min-width:900px){
-  main{max-width:1100px}
+  #v-grade{max-width:1100px}
   #v-grade .daytabs{display:none}
   #v-grade .grid{grid-template-columns:40px repeat(7,minmax(0,1fr))}
   #v-grade .grid>.day:not(.on){display:block}

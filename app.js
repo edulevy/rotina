@@ -215,8 +215,10 @@ function abrir(v){
   document.querySelectorAll("#tabbar button[aria-current]").forEach(b=>b.setAttribute("aria-current","page"));
   if (v !== "hoje"){ $("top-tit").textContent = $("v-"+v).dataset.tit; $("top-sub").textContent = v==="grade" ? "Semana-padrão" : "Plano Pedal + Força"; }
   RENDER[v]();
-  window.scrollTo(0,0);
+  document.querySelector("main").scrollTop = 0;
 }
+/* o Safari do iPhone ignora user-scalable=no: bloqueia a pinça na mão */
+["gesturestart","gesturechange"].forEach(ev=>document.addEventListener(ev, e=>e.preventDefault(), {passive:false}));
 $("tabbar").addEventListener("click", e=>{ const b = e.target.closest("button[data-v]"); if (b) abrir(b.dataset.v); });
 abrir(RENDER[location.hash.slice(1)] ? location.hash.slice(1) : "hoje"); // link com #treinos abre direto na aba
 
