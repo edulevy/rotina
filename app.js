@@ -50,21 +50,30 @@ const gymTable = rows => `<div class="tbl"><table><thead><tr><th>Exercício</th>
   rows.map(r=>`<tr><td>${esc(r[0])}</td><td class="num">${esc(r[1])}</td><td class="num">${esc(r[2])}</td><td class="muted">${esc(r[3]||"")}</td></tr>`).join("")}</tbody></table></div>`;
 const nomeGarmin = (wk, s) => `S${String(wk+1).padStart(2,"0")} ${s.nome.replace(/×/g,"x")}`;
 
-function card({s,k,lbl,key}, wk, abrirGym){
+/* cards que abrem e fecham: lembra o que o Levy abriu/fechou enquanto o app está aberto
+   (o "Hoje" redesenha a cada minuto e não pode fechar o card na cara dele) */
+const abertos = new Map();
+document.addEventListener("toggle", e=>{ const f = e.target.dataset && e.target.dataset.fold; if (f) abertos.set(f, e.target.open); }, true);
+const estaAberto = (id, padrao) => abertos.has(id) ? abertos.get(id) : padrao;
+const fold = (id, padrao, resumo, corpo) =>
+  `<details class="fold" data-fold="${id}"${estaAberto(id,padrao)?" open":""}><summary>${resumo}</summary><div class="fb">${corpo}</div></details>`;
+
+function card({s,k,lbl,key}, wk, aba, abrir){
   const done = store.get(key) === "1";
-  const head = (label, title, dur) => `<div class="ch"><div class="t"><span class="kind">${esc(label)}</span><h3>${esc(title)}</h3></div><span class="dur">${dur}</span></div>`;
+  const head = (label, title, dur) => `<span class="ch"><span class="t"><span class="kind">${esc(label)}</span><h3>${esc(title)}</h3></span><span class="dur">${dur}</span></span>`;
   const check = `<label class="chk"><input type="checkbox" data-k="${key}"${done?" checked":""}> Feito</label>`;
   if (k === "rest") return `<div class="card rest">${head("Descanso","Folga total","—")}<p class="obs">${esc(lbl || "Dormir bem e comer direito também é treino.")}</p></div>`;
+  const id = `${aba}:${key}`;
   if (k === "gym") {
     const g = GYM_META[s.letra];
-    return `<div class="card gym${done?" done":""}">${head("Academia "+s.letra+" · 18h", g.nome, g.dur)}
-      <details${abrirGym?" open":""}><summary>Exercícios (bloco ${s.bloco})</summary>${gymTable(GYM[s.bloco][s.letra])}</details>${check}</div>`;
+    return `<div class="card gym${done?" done":""}">${fold(id, abrir, head("Academia "+s.letra+" · 18h", g.nome, g.dur),
+      `<p class="obs">Bloco ${s.bloco}: ${esc(BLOCOS[s.bloco-1])}</p>${gymTable(GYM[s.bloco][s.letra])}`)}${check}</div>`;
   }
-  return `<div class="card ${k}${done?" done":""}">${head(lbl, s.nome, fmtDur(totMin(s.seg)))}
-    ${profileHTML(s.seg)}
+  return `<div class="card ${k}${done?" done":""}">${fold(id, abrir, head(lbl, s.nome, fmtDur(totMin(s.seg))),
+    `${profileHTML(s.seg)}
     <ol class="steps">${s.passos.map(p=>`<li>${esc(p)}</li>`).join("")}</ol>
     ${s.obs?`<p class="obs">${esc(s.obs)}</p>`:""}
-    <span class="garmin">No relógio: ${esc(nomeGarmin(wk,s))}</span>${check}</div>`;
+    <span class="garmin">No relógio: ${esc(nomeGarmin(wk,s))}</span>`)}${check}</div>`;
 }
 
 /* marcar "feito" em qualquer aba */
@@ -104,10 +113,13 @@ function renderHoje(){
 
   $("hoje-treinos").innerHTML = wk === null
     ? `<p class="empty">Sem treino do plano neste dia.</p>`
-    : sessoesDoDia(wk, d).map(x=>card(x, wk, false)).join("");
+    : sessoesDoDia(wk, d).map(x=>card(x, wk, "hoje", true)).join("");
 
-  /* agenda: sem o sono da madrugada */
-  $("hoje-agenda").innerHTML = blocos.filter(x=>!(x.k==="sono" && x.i===0)).map(x=>{
+  /* agenda: sem o sono da madrugada; fechada mostra só o resumo */
+  const itens = blocos.filter(x=>!(x.k==="sono" && x.i===0));
+  const atual = ehHoje && itens.find(x=>m>=x.i && m<x.f);
+  $("agenda-resumo").textContent = atual ? `Agora: ${atual.t} · ${itens.length} itens` : `${itens.length} itens · ${hhmm(itens[0].i)} → ${hhmm(itens[itens.length-1].i)}`;
+  $("hoje-agenda").innerHTML = itens.map(x=>{
     const cls = [CAT[x.k].cls, x.opt?"opt":"", ehHoje && m>=x.f ? "past":"", ehHoje && m>=x.i && m<x.f ? "cur":""].join(" ");
     return `<li class="${cls}"><span class="h">${hhmm(x.i)}${x.k==="sono"?"":"–"+hhmm(x.f)}</span><div><div class="t">${esc(x.t)}</div>${x.n?`<div class="n">${esc(x.n)}</div>`:""}</div></li>`;
   }).join("");
@@ -131,7 +143,7 @@ function renderTreinos(){
   $("days").innerHTML = DIAS.map((dn,d)=>{
     const dt = addDays(ini,d), fer = FERIADOS[iso(dt)], ss = sessoesDoDia(wk,d);
     ss.forEach(x=>{ if (x.k!=="rest"){ total++; if (store.get(x.key)==="1") feitos++; } });
-    return `<div><div class="dayh${+dt===+hj?" today":""}"><b>${dn}</b><span>${ddmm(dt)}</span>${fer?`<em>${esc(fer)}</em>`:""}</div><div class="cards">${ss.map(x=>card(x,wk,false)).join("")}</div></div>`;
+    return `<div><div class="dayh${+dt===+hj?" today":""}"><b>${dn}</b><span>${ddmm(dt)}</span>${fer?`<em>${esc(fer)}</em>`:""}</div><div class="cards">${ss.map(x=>card(x,wk,"treinos",false)).join("")}</div></div>`;
   }).join("");
   $("wkhead").innerHTML = `<div><span class="eyebrow">Bloco ${w.bloco} · ${BLOCOS[w.bloco-1]}${w.deload?" · descarga":""}</span><h2>Semana ${wk+1} · ${esc(w.foco)}</h2><span class="mono muted small">${ddmm(ini)} → ${ddmm(addDays(ini,6))}</span></div><span class="mono muted small" id="prog">${feitos}/${total} feitos</span>`;
   $("wknote").textContent = w.nota;
@@ -148,8 +160,10 @@ function renderAcademia(){
   document.querySelectorAll("#gtabs button").forEach(b=>b.setAttribute("aria-pressed", String(+b.dataset.b===gb)));
   $("gnote").textContent = `${BLOCOS[gb-1]}. ${GYM[gb].nota}`;
   const letraHoje = ["B","A","D","C",null,null,"E"][dow(hoje0())];
-  $("glist").innerHTML = ["A","B","C","D","E"].map(L=>{ const g = GYM_META[L];
-    return `<div class="gw${L===letraHoje?" hoje":""}"><div class="gh"><h3>${L} · ${esc(g.nome)}${L===letraHoje?" · hoje":""}</h3><span>${esc(g.quando)} · ${g.dur}</span></div>${gymTable(GYM[gb][L])}</div>`; }).join("");
+  $("glist").innerHTML = ["A","B","C","D","E"].map(L=>{ const g = GYM_META[L], hj = L===letraHoje;
+    return `<div class="card gym gw${hj?" hoje":""}">${fold(`academia:${gb}${L}`, hj,
+      `<span class="ch"><span class="t"><span class="kind">${esc(g.quando)}${hj?" · hoje":""}</span><h3>${L} · ${esc(g.nome)}</h3></span><span class="dur">${g.dur}</span></span>`,
+      gymTable(GYM[gb][L]))}</div>`; }).join("");
 }
 
 /* ================= GRADE ================= */

@@ -83,6 +83,17 @@ main{max-width:760px;margin:0 auto;padding:16px 16px calc(var(--tabh) + env(safe
 .chk{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--muted);cursor:pointer;user-select:none;min-height:32px}
 .chk input{width:22px;height:22px;accent-color:var(--accent);margin:0}
 details>summary{cursor:pointer;font-weight:600;color:var(--gym);font-size:.9rem}
+/* cards que abrem e fecham */
+.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;color:inherit;font:inherit;min-height:36px}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::after{content:"";flex:none;width:9px;height:9px;margin:0 4px 4px 0;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s}
+.fold[open]>summary::after{transform:rotate(-135deg);margin:4px 4px 0 0}
+.fold>summary .ch{flex:1;min-width:0}
+.fb{display:flex;flex-direction:column;gap:9px;margin-top:10px}
+.ft{flex:1;display:flex;flex-direction:column;min-width:0}
+.ft b{font-size:1.1rem}
+#v-hoje>.fold{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+#v-hoje>.fold .tl{margin-top:10px}
 .empty{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:14px;color:var(--muted)}
 
 /* agenda do dia */
@@ -137,7 +148,7 @@ td.zc b{display:inline-block;width:12px;height:12px;border-radius:2px;margin-rig
 td.num{white-space:nowrap}
 
 /* academia */
-.glist{display:flex;flex-direction:column;gap:18px}
+.glist{display:flex;flex-direction:column;gap:10px}
 .gw{display:flex;flex-direction:column;gap:6px}
 .gw .gh{display:flex;flex-direction:column}
 .gw .gh span{font-family:var(--f-data);font-size:.78rem;color:var(--muted)}
