@@ -36,8 +36,8 @@ function sessoesDoDia(wk, d){
     [[w.r1,"run","Corrida 1 · 18h"],[{letra:"B",bloco:bl},"gym"]],
     [[w.ter,"bike","Pedal 05h15"],[{letra:"A",bloco:bl},"gym"]],
     [[w.r2,"run","Corrida 2 · 18h"],[{letra:"D",bloco:bl},"gym"]],
-    [[{letra:"C",bloco:bl},"gym"]],
-    [[w.sex,"bike","Pedal 05h15"]],
+    [[w.sex,"bike","Pedal 05h15"],[{letra:"C",bloco:bl},"gym"]],
+    [[null,"rest","Folga antes do longo de amanhã. Cama às 21h."]],
     [[w.sab,"bike","Pedal longo 05h15"]].concat(w.r3?[[w.r3,"run","Corrida 3 · transição"]]:[]),
     [[null,"rest"],[{letra:"E",bloco:bl},"gym"]]
   ];
@@ -54,7 +54,7 @@ function card({s,k,lbl,key}, wk, abrirGym){
   const done = store.get(key) === "1";
   const head = (label, title, dur) => `<div class="ch"><div class="t"><span class="kind">${esc(label)}</span><h3>${esc(title)}</h3></div><span class="dur">${dur}</span></div>`;
   const check = `<label class="chk"><input type="checkbox" data-k="${key}"${done?" checked":""}> Feito</label>`;
-  if (k === "rest") return `<div class="card rest">${head("Descanso","Folga total","—")}<p class="obs">Dormir bem e comer direito também é treino.</p></div>`;
+  if (k === "rest") return `<div class="card rest">${head("Descanso","Folga total","—")}<p class="obs">${esc(lbl || "Dormir bem e comer direito também é treino.")}</p></div>`;
   if (k === "gym") {
     const g = GYM_META[s.letra];
     return `<div class="card gym${done?" done":""}">${head("Academia "+s.letra+" · 18h", g.nome, g.dur)}

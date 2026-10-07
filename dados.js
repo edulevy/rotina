@@ -73,7 +73,7 @@ const SEM = [
    r1: corridaRW(6,"2'","1'"), r2: corridaRW(6,"2'","1'") },
 
  { bloco:2, foco:"Limiar + força",
-   nota:"Começa o bloco de força: academia pesada (4–6 repetições). Na sexta entra a força-resistência, que é musculação em cima da bike.",
+   nota:"Começa o bloco de força: academia pesada (4–6 repetições). Na quinta entra a força-resistência, que é musculação em cima da bike.",
    ter: B("Limiar 3×10'", P([15,2], reps(3,[10,4],[4,1]), [8,1]),
      ["15' aquecendo","3× 10' em Z4 (160–172), 4' Z1 entre","8' soltando"]),
    sex: B("Força-resistência 4×5'", P([10,1],[10,2], reps(4,[5,3],[5,2]), [5,1]),
@@ -143,7 +143,7 @@ const SEM = [
    r3: brick(15) },
 
  { bloco:3, foco:"30/30 e volume",
-   nota:"Semana de Natal (sexta 25/12): o pedal de sexta é opcional. Se for perder um treino, que seja ele.",
+   nota:"Semana de Natal: o pedal de quinta (24/12, véspera) é opcional. Se for perder um treino, que seja ele.",
    ter: B("30/30 2 séries de 8", P([15,2], reps(8,[0.5,5],[0.5,1]), [5,1], reps(8,[0.5,5],[0.5,1]), [15,2],[8,1]),
      ["15' aquecendo","8× (30\" muito forte + 30\" leve)","5' Z1","Repete as 8×","15' Z2, 8' Z1"]),
    sex: B("Natal: Z2 opcional", P([10,1],[45,2],[5,1]), ["60' em Z2 se der vontade. Senão, folga."]),
@@ -154,7 +154,7 @@ const SEM = [
    r3: brick(15) },
 
  { bloco:3, foco:"Reteste e descarga", deload:true,
-   nota:"Hora de medir: reteste de subida na terça e 20' de corrida na segunda. Compara com as semanas 2 e 7. Sexta é Ano Novo.",
+   nota:"Hora de medir: reteste de subida na terça e 20' de corrida na segunda. Compara com as semanas 2 e 7. O pedal de quinta cai no Réveillon (31/12): opcional.",
    ter: testeSubida(true),
    sex: B("Ano Novo: Z2 opcional", P([10,1],[45,2],[5,1]), ["60' leve, se quiser"]),
    sab: longo("2h Z2", P([15,1],[100,2],[5,1]), ["1h45 em Z2, sem pressa"]),
@@ -225,18 +225,18 @@ const T = s => { const [h,m] = s.split(":"); return +h*60 + +m; };
 /* bloco: [início, fim, categoria, título, nota, opcional] */
 const b = (i,f,k,t,n,opt) => ({i:typeof i==="number"?i:T(i), f:typeof f==="number"?f:T(f), k, t, n:n||"", opt:!!opt});
 
-/* pedal sempre 05h15 (acorda 4h30): ter e sex aqui, sáb no sabado(). Corrida e academia à noite. */
-const PEDAL = {1:["Pedal intervalado","Dia duro. Inclui ida e volta"], 4:["Pedal Z2 + sprints","Z2 de verdade, tiros curtos. Inclui ida e volta"]};
+/* pedal sempre 05h15 (acorda 4h30): ter e qui aqui, sáb no sabado(). Corrida e academia à noite. */
+const PEDAL = {1:["Pedal intervalado","Dia duro. Inclui ida e volta"], 3:["Pedal Z2 + sprints","Z2 de verdade, tiros curtos. Inclui ida e volta"]};
 /* treino da noite de seg–sex: [duração em min, nome, nota] (sexta à noite é livre) */
 const NOITE = [
   [90,"Corrida 1 + Academia B","Corrida principal e superiores"],
   [60,"Academia A · perna força","12 h depois do intervalado da manhã"],
   [90,"Corrida 2 + Academia D","Corrida leve e superiores + core"],
-  [60,"Academia C · potência","Pouco volume, saltos rápidos"],
+  [60,"Academia C · potência","Pouco volume, saltos rápidos. 12 h depois do pedal da manhã"],
   null
 ];
-/* véspera de pedal (seg, qui, sex): deita cedo pra acordar 4h30 */
-const VESPERA = {0:true, 3:true, 4:true};
+/* véspera de pedal (seg, qua, sex): deita cedo pra acordar 4h30 */
+const VESPERA = {0:true, 2:true, 4:true};
 
 function noite(fim, deitar){
   const jantar = Math.min(fim+60, deitar-30), o = [
