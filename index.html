@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rotina</title>
+<meta name="description" content="Plano Pedal + Força e Grade Estudo e Treino do Levy">
+<meta name="theme-color" content="#f2f4f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1419" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Rotina">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icones/icone-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icones/icone-180.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <span class="eyebrow" id="top-sub"></span>
+    <h1 id="top-tit">Hoje</h1>
+  </div>
+</header>
+
+<main>
+  <!-- ============ HOJE ============ -->
+  <section class="view" id="v-hoje" data-tit="Hoje">
+    <div class="stepper">
+      <button type="button" class="ibtn" id="dia-ant" aria-label="Dia anterior">‹</button>
+      <button type="button" class="pill" id="dia-hoje">Hoje</button>
+      <button type="button" class="ibtn" id="dia-prox" aria-label="Próximo dia">›</button>
+    </div>
+    <div class="agora" id="agora" aria-live="polite"></div>
+    <div class="ctx" id="hoje-ctx"></div>
+    <h2 class="sec">Treinos do dia</h2>
+    <div class="cards" id="hoje-treinos"></div>
+    <h2 class="sec">Agenda do dia</h2>
+    <ol class="tl" id="hoje-agenda"></ol>
+  </section>
+
+  <!-- ============ TREINOS ============ -->
+  <section class="view" id="v-treinos" data-tit="Treinos" hidden>
+    <div class="weeknav" id="weeknav"></div>
+    <div class="wkhead" id="wkhead"></div>
+    <p class="wknote" id="wknote"></p>
+    <div id="wkdist"></div>
+    <div class="days" id="days"></div>
+
+    <details class="box">
+      <summary>Zonas de frequência cardíaca</summary>
+      <p>% da FC máxima, estimada em <b class="mono">~195 bpm</b> pela maior FC dos teus pedais <span class="conferir">[CONFERIR]</span>. Os treinos no Garmin já vêm com essas faixas em bpm.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Zona</th><th>Bike</th><th>Sensação</th></tr></thead>
+        <tbody>
+          <tr><td class="zc"><b class="z1"></b>Z1</td><td class="num">&lt; 118</td><td>Passeio. Conversa sem esforço.</td></tr>
+          <tr><td class="zc"><b class="z2"></b>Z2</td><td class="num">118–137</td><td>Frases completas. Respira pelo nariz.</td></tr>
+          <tr><td class="zc"><b class="z3"></b>Z3</td><td class="num">138–156</td><td>Fala em frases curtas.</td></tr>
+          <tr><td class="zc"><b class="z4"></b>Z4</td><td class="num">157–176</td><td>Duas ou três palavras.</td></tr>
+          <tr><td class="zc"><b class="z5"></b>Z5</td><td class="num">177+</td><td>Só palavras soltas. RPE 9/10.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="muted">Na corrida a FC fica uns 5–10 bpm acima da bike no mesmo esforço (no Garmin: bike + 5). Em tiros curtos a FC demora a subir: guia pela sensação.</p>
+    </details>
+
+    <details class="box">
+      <summary>Como ajustar no caminho</summary>
+      <div class="rules">
+        <div><h3>Z2 é Z2 mesmo na subida</h3><p>No Rio a FC dispara em qualquer subida. Reduz a marcha, gira leve e aceita ir devagar. Se o grupo acelerar, deixa ir.</p></div>
+        <div><h3>Quando recuar</h3><p>FC de repouso 5–7 bpm acima do normal por 2 dias, sono ruim ou perna pesada no aquecimento: troca o intervalado por Z2. Duas semanas ruins seguidas: descarga antes da hora.</p></div>
+        <div><h3>Corrida: dor articular manda</h3><p>Dor em canela, joelho ou tendão de Aquiles que piora durante a corrida: volta uma semana na progressão e só avança sem dor por 2 sessões.</p></div>
+        <div><h3>Faltou um treino?</h3><p>Não compensa dobrando. Prioridade: 1) intervalado de terça, 2) longo, 3) academia A, 4) o resto. Perdeu terça? Faz o intervalado na sexta e o Z2 sai.</p></div>
+        <div><h3>Comer no longo</h3><p>Acima de 90 minutos, carboidrato a partir da primeira hora: 30–60 g por hora, além de água com sal no calor.</p></div>
+        <div><h3>Como medir se melhorou</h3><p><b>Tempo na subida-teste</b> (semana 2 × 12) e <b>distância nos 20' de corrida em Z2</b> (semana 7 × 12). Mesma FC e mais rápido = mais condicionado.</p></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ ACADEMIA ============ -->
+  <section class="view" id="v-academia" data-tit="Academia" hidden>
+    <p>Cada bloco tem seus treinos A–E. <b>Nunca até a falha</b>: pare com 2–3 repetições sobrando (RPE 7–8). No bloco de potência, velocidade máxima em cada repetição; se a velocidade cair, encerra a série.</p>
+    <div class="seg" id="gtabs" role="group" aria-label="Bloco"></div>
+    <p class="wknote" id="gnote"></p>
+    <div class="glist" id="glist"></div>
+  </section>
+
+  <!-- ============ GRADE ============ -->
+  <section class="view" id="v-grade" data-tit="Grade" hidden>
+    <div class="seg" id="modo" role="group" aria-label="Modo da grade">
+      <button type="button" data-m="A" aria-pressed="true">Sem trabalho</button>
+      <button type="button" data-m="B" aria-pressed="false">Com trabalho à tarde</button>
+    </div>
+    <div class="daytabs" id="daytabs" role="group" aria-label="Escolher dia"></div>
+    <div class="agenda"><div class="grid" id="grid"></div></div>
+    <p class="muted small">Contorno tracejado = opcional. O sono aparece só a partir das 4h.</p>
+
+    <h2 class="sec">As 168 horas da semana</h2>
+    <div class="bar" id="bar" aria-hidden="true"></div>
+    <div class="legend" id="legend"></div>
+    <p id="destaque"></p>
+
+    <details class="box">
+      <summary>Por que a grade é assim</summary>
+      <div class="rules">
+        <div><h3>TCC de manhã, antes de tudo</h3><p>Os blocos Foco ficam nas primeiras horas, quando a cabeça ainda não gastou energia com mensagens e pequenas decisões.</p></div>
+        <div><h3>Blocos de 1h30 a 2h, com pausa de verdade</h3><p>A concentração cai depois de uns 90–120 minutos. Na pausa: levanta, água, olha longe. Rede social na pausa não descansa a cabeça.</p></div>
+        <div><h3>O bloco da tarde é o amortecedor</h3><p>Sem trabalho, a tarde é pra disciplinas e leituras. Quando o trabalho aparecer, é esse bloco que sai.</p></div>
+        <div><h3>A hora de dormir depende da hora de acordar</h3><p><b>21h na véspera de pedal</b> (segunda, quinta e sexta) e <b>22h nas outras noites</b>. Dá 7h30 a 8h toda noite.</p></div>
+        <div><h3>Café leve antes, café de verdade depois</h3><p>Às 4h30, só algo rápido (banana, pão, água). O café completo vem às 7h, depois do pedal. Às 17h, lanche com carboidrato antes do treino.</p></div>
+        <div><h3>Fechamento semanal fixo</h3><p>Sexta à tarde: revisão da semana e diário do TCC. Domingo 18h: as 3 entregas do TCC da semana e conferir a semana de treino.</p></div>
+      </div>
+    </details>
+    <details class="box">
+      <summary>Compromissos que mudam de dia</summary>
+      <ul class="pts">
+        <li><b>Compromisso à tarde</b>: ocupa o bloco de disciplinas. O que era de disciplina vai pra reserva de domingo.</li>
+        <li><b>Compromisso de manhã</b>: naquele dia o TCC passa pra tarde, no lugar das disciplinas.</li>
+        <li><b>Reunião com o orientador</b>: leva uma pergunta concreta e um resultado (uma tabela, um gráfico, um parágrafo).</li>
+        <li><b>Nunca no lugar do sono</b>: compromisso à noite em véspera de pedal? O pedal daquela manhã sai (intervalado de terça passa pra sexta).</li>
+      </ul>
+    </details>
+  </section>
+</main>
+
+<nav class="tabbar" id="tabbar" aria-label="Seções">
+  <button type="button" data-v="hoje" aria-current="page">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.6" class="fill"/></svg>
+    <span>Hoje</span></button>
+  <button type="button" data-v="treinos">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-7h5l3 7M10 9l3 7h-7M13 6h3"/></svg>
+    <span>Treinos</span></button>
+  <button type="button" data-v="academia">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg>
+    <span>Academia</span></button>
+  <button type="button" data-v="grade">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>
+    <span>Grade</span></button>
+</nav>
+
+<script src="dados.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
