@@ -339,3 +339,77 @@ const semana = modo => [0,1,2,3,4].map(d=>diaUtil(modo,d)).concat([sabado(modo),
 
 return {CAT, ORDEM, semana};
 })();
+
+
+/* ================= NUTRIÇÃO ================= */
+/* Base das contas: o peso de hoje (estimativa do Levy, out/26). Com um InBody novo, troca ATUAL
+   e todos os alvos da aba se recalculam. */
+window.NUTRI = (function(){
+"use strict";
+const ATUAL = {peso:75, pgc:20, fonte:"estimativa, out/26"};
+/* InBody de 27/08/2025 (InBody270): só referência, o condicionamento já caiu desde então */
+const INBODY = {data:"27/08/25", peso:74.8, mme:35.1, pgc:17.3, gordura:13.0, tmb:1706, visceral:5, tronco:162};
+/* melhor marca do histórico do InBody (28/02/24) */
+const MELHOR = {data:"fev/24", peso:70.5, mme:35.6, pgc:11.1};
+
+/* tipo de dia: g/kg de carboidrato, proteína e gordura. kcal sai da conta (4/4/9).
+   Proteína alta (2 g/kg) pra segurar e recuperar músculo enquanto a gordura cai. */
+const TIPOS = {
+  leve:    {nome:"Dia leve",     carb:3,   prot:2, gord:0.8, cls:"n-leve",
+            nota:"Sem treino ou só mobilidade. É o dia de maior déficit: menos arroz e pão, a mesma proteína."},
+  moderado:{nome:"Dia moderado", carb:4.5, prot:2, gord:0.8, cls:"n-mod",
+            nota:"Corrida + academia à noite. O lanche das 17h é o que segura o treino."},
+  duro:    {nome:"Dia duro",     carb:6,   prot:2, gord:0.8, cls:"n-duro",
+            nota:"Intervalado ou força de manhã e academia à noite. Dois treinos: carboidrato nos dois lados."},
+  longo:   {nome:"Dia do longo", carb:7,   prot:2, gord:0.8, cls:"n-longo",
+            nota:"2h a 3h30 de bike. O que comer no pedal vem por cima desse total."}
+};
+/* seg → dom, igual à grade */
+const DIA_TIPO = ["moderado","duro","moderado","duro","leve","longo","leve"];
+
+/* refeições por tipo de dia: [hora, nome, o que comer, proteína g]. Horários da grade "sem trabalho". */
+const pedalManha = [
+  ["04:30","Café leve","1 banana + 1 pão com mel ou geleia + água. Pouca fibra e pouca gordura.",0],
+  ["Na bike","Durante o pedal","Água. Acima de 75' de pedal, 30–60 g de carboidrato por hora (gel, banana, rapadura).",0],
+  ["07:00","Café da manhã de verdade","3 ovos mexidos + 2 fatias de pão ou tapioca + fruta + café com leite. É a recuperação do pedal.",35]
+];
+const REFEICOES = {
+  duro: pedalManha.concat([
+    ["10:00","Lanche","Iogurte natural + granola + 1 fruta.",15],
+    ["12:00","Almoço","Prato cheio: arroz e feijão (meio prato), 150 g de carne/frango/peixe, salada e legume.",40],
+    ["17:00","Lanche pré-treino","Sanduíche de pão com frango ou queijo + banana. 1 h antes da academia.",20],
+    ["19:00","Jantar","Igual ao almoço, com batata ou macarrão no lugar do arroz se quiser. Proteína + carboidrato.",35]
+  ]),
+  moderado: [
+    ["06:00","Café da manhã","3 ovos + pão + fruta + café com leite.",30],
+    ["12:00","Almoço","Arroz e feijão (um terço do prato), 150 g de carne/frango/peixe, salada e legume.",40],
+    ["17:00","Lanche pré-treino","Pão com queijo ou pasta de amendoim + banana. Leve: tem corrida.",15],
+    ["19:30","Jantar","180 g de carne/frango/peixe + arroz, batata ou macarrão + legumes. Depois de corrida + academia, não pula.",45],
+    ["21:00","Ceia (se der fome)","Iogurte ou um copo de leite. Ajuda a fechar a proteína do dia.",15]
+  ],
+  leve: [
+    ["06:00","Café da manhã","3 ovos + 1 pão ou tapioca pequena + fruta + café.",30],
+    ["12:00","Almoço","Metade do prato de salada e legume, 180 g de carne/frango/peixe, arroz e feijão em porção pequena.",45],
+    ["16:00","Lanche","Iogurte natural + fruta + 2 fatias de queijo.",20],
+    ["19:30","Jantar","180 g de proteína + legumes. Carboidrato pouco: arroz ou batata do tamanho de uma mão fechada.",45]
+  ],
+  longo: [
+    ["04:30","Café pré-longo","2 pães ou tapioca com mel + banana + água. Um pouco mais que nos outros dias: vai ser longe.",10],
+    ["Na bike","Durante o longo","60–90 g de carboidrato por hora a partir da 1ª hora + 500–750 ml de água por hora, com sal no calor.",0],
+    ["09:00","Café reforçado","Ovos, pão, fruta, iogurte com granola. Até 1 h depois de chegar.",35],
+    ["13:00","Almoço","Prato cheio: arroz, feijão, 180 g de proteína, salada. Hoje o carboidrato vem sem culpa.",45],
+    ["16:30","Lanche","Sanduíche ou açaí com granola + iogurte.",15],
+    ["20:00","Jantar","180 g de proteína + carboidrato + legumes. Amanhã é dia leve.",45]
+  ]
+};
+
+/* comer e beber no treino, pela duração */
+const NO_TREINO = [
+  ["Até 75'","Só água. Comer antes já dá conta."],
+  ["75'–2h","30–60 g de carboidrato por hora (1 gel ou 1 banana a cada 30–40'). 500 ml de água por hora."],
+  ["Mais de 2h","60–90 g por hora, começando na 1ª hora. 500–750 ml por hora; no calor do Rio, uma pitada de sal ou isotônico."],
+  ["Corrida","Até 45' (o caso das 12 semanas): nada. Água depois."]
+];
+
+return {ATUAL, INBODY, MELHOR, TIPOS, DIA_TIPO, REFEICOES, NO_TREINO};
+})();

@@ -111,6 +111,11 @@ function renderHoje(){
   if (fer) ctx = `<span class="conferir">${esc(fer)}</span> ` + ctx;
   $("hoje-ctx").innerHTML = ctx ? `<div class="wknote">${ctx}</div>` : "";
 
+  const tn = tipoDoDia(dia), mn = metas(tn);
+  $("hoje-nutri").className = `ncomer ${TIPOS[tn].cls}`;
+  $("hoje-nutri").dataset.t = tn;
+  $("hoje-nutri").innerHTML = `<span class="eyebrow">Comer ${rel ? rel.toLowerCase() : "no dia"} · ${TIPOS[tn].nome}</span><span><b class="mono">${milhar(mn.kcal)} kcal</b> · ${mn.prot} g proteína · ${mn.carb} g carbo</span>`;
+
   $("hoje-treinos").innerHTML = wk === null
     ? `<p class="empty">Sem treino do plano neste dia.</p>`
     : sessoesDoDia(wk, d).map(x=>card(x, wk, "hoje", true)).join("");
@@ -166,6 +171,54 @@ function renderAcademia(){
       gymTable(GYM[gb][L]))}</div>`; }).join("");
 }
 
+/* ================= NUTRIÇÃO ================= */
+const {ATUAL, INBODY, MELHOR, TIPOS, DIA_TIPO, REFEICOES, NO_TREINO} = window.NUTRI;
+const r50 = n => Math.round(n/50)*50;
+const milhar = n => String(n).replace(/\B(?=(\d{3})+$)/g, ".");
+const virg = n => String(n).replace(".", ",");
+function metas(t){
+  const x = TIPOS[t], g = k => Math.round(x[k]*ATUAL.peso);
+  return {prot:g("prot"), carb:g("carb"), gord:g("gord"), kcal:r50(g("prot")*4 + g("carb")*4 + g("gord")*9)};
+}
+/* fora das 12 semanas é dia leve; na semana de descarga, terça e quinta viram dia moderado */
+function tipoDoDia(d){
+  const w = semanaDoPlano(d), t = DIA_TIPO[dow(d)];
+  if (w === null) return "leve";
+  return t === "duro" && SEM[w].deload ? "moderado" : t;
+}
+let nt = tipoDoDia(hoje0());
+$("ntabs").innerHTML = Object.keys(TIPOS).map(t=>`<button type="button" data-t="${t}" aria-pressed="false">${TIPOS[t].nome.replace("Dia ","").replace("do ","")}</button>`).join("");
+$("ntabs").addEventListener("click", e=>{ const b = e.target.closest("button[data-t]"); if(!b) return; nt = b.dataset.t; renderNutri(); });
+$("ntreino").innerHTML = NO_TREINO.map(r=>`<tr><td class="num">${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join("");
+{
+  const gord = Math.round(ATUAL.peso*ATUAL.pgc/100), magra = ATUAL.peso - gord, alvoPeso = magra + 0.5 + gord - 4;
+  $("ninbody").innerHTML = `<div class="tbl"><table>
+    <thead><tr><th></th><th>Peso</th><th>Gordura</th><th>Músculo*</th></tr></thead><tbody>${[
+      [`<b>Hoje</b> <span class="muted small">(${ATUAL.fonte})</span>`, ATUAL.peso, `~${ATUAL.pgc}% · ${gord} kg`, "abaixo de 35 kg"],
+      [`InBody ${INBODY.data}`, INBODY.peso, `${virg(INBODY.pgc)}% · ${virg(INBODY.gordura)} kg`, `${virg(INBODY.mme)} kg`],
+      [`Melhor marca (${MELHOR.data})`, MELHOR.peso, `${virg(MELHOR.pgc)}%`, `${virg(MELHOR.mme)} kg`],
+      [`<b>Meta da semana 12</b>`, `~${Math.round(alvoPeso)}`, `~${Math.round((gord-4)/alvoPeso*100)}% · ${gord-4} kg`, "voltar pra 35"]
+    ].map(r=>`<tr><td>${r[0]}</td><td class="num">${typeof r[1]==="number"?virg(r[1]):r[1]} kg</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td></tr>`).join("")}</tbody></table></div>
+    <p class="muted small">* Massa muscular esquelética. "Hoje" é estimativa: o condicionamento caiu desde o último exame.</p>
+    <p>O peso é o mesmo de 2025, mas com mais gordura: o que saiu foi músculo e condicionamento. A boa notícia é que <b>músculo que já existiu volta rápido</b> com treino de força e proteína em dia.</p>
+    <p>Meta realista pras 12 semanas: <b>uns −4 kg de gordura</b> (0,3 kg por semana) sem perder massa magra. Os 13% da melhor fase ficam pro ciclo seguinte.</p>
+    <p class="muted">Faz um InBody na semana 1 <span class="conferir">[CONFERIR]</span> pra trocar a estimativa por número real, e outro na semana 12. Com o exame novo, os alvos da aba se ajustam ao peso dele.</p>`;
+}
+
+function renderNutri(){
+  document.querySelectorAll("#ntabs button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.t===nt)));
+  const x = TIPOS[nt], m = metas(nt);
+  $("nmetas").className = `metas ${x.cls}`;
+  $("nmetas").innerHTML = [["Energia", milhar(m.kcal), "kcal"],["Proteína", m.prot, "g"],["Carboidrato", m.carb, "g"],["Gordura", m.gord, "g"]]
+    .map(([n,v,u])=>`<div><span class="eyebrow">${n}</span><b class="mono">${v}<small> ${u}</small></b></div>`).join("");
+  $("nnota").textContent = x.nota;
+  $("nrefs").innerHTML = REFEICOES[nt].map(r=>`<li class="${r[3]?"":"pre"}"><span class="h">${esc(r[0])}</span><div><div class="t">${esc(r[1])}${r[3]?` <span class="mono muted small">· ~${r[3]} g prot.</span>`:""}</div><div class="n">${esc(r[2])}</div></div></li>`).join("");
+  /* semana do plano em curso (antes de 12/10, a semana 1) */
+  const ini = addDays(START, wkAtual()*7), hj = hoje0();
+  $("nsemana").innerHTML = DIAS.map((dn,i)=>{ const dt = addDays(ini,i), t = tipoDoDia(dt), mm = metas(t);
+    return `<tr class="${TIPOS[t].cls}${+dt===+hj?" hj":""}"><td><b>${dn}</b></td><td><i class="nd"></i>${TIPOS[t].nome.replace("Dia ","")}</td><td class="num">${milhar(mm.kcal)}</td><td class="num">${mm.carb} g</td></tr>`; }).join("");
+}
+
 /* ================= GRADE ================= */
 let modo = store.get("grade26:modo") === "B" ? "B" : "A";
 let diaAtivo = dow(new Date());
@@ -206,20 +259,21 @@ function renderGrade(){
 }
 
 /* ================= navegação ================= */
-const RENDER = {hoje:renderHoje, treinos:renderTreinos, academia:renderAcademia, grade:renderGrade};
+const RENDER = {hoje:renderHoje, treinos:renderTreinos, academia:renderAcademia, nutri:renderNutri, grade:renderGrade};
 let atual = "hoje";
 function abrir(v){
   atual = v;
   document.querySelectorAll(".view").forEach(s=>s.hidden = s.id !== "v-"+v);
   document.querySelectorAll("#tabbar button").forEach(b=>b.toggleAttribute("aria-current", b.dataset.v===v));
   document.querySelectorAll("#tabbar button[aria-current]").forEach(b=>b.setAttribute("aria-current","page"));
-  if (v !== "hoje"){ $("top-tit").textContent = $("v-"+v).dataset.tit; $("top-sub").textContent = v==="grade" ? "Semana-padrão" : "Plano Pedal + Força"; }
+  if (v !== "hoje"){ $("top-tit").textContent = $("v-"+v).dataset.tit; $("top-sub").textContent = v==="grade" ? "Semana-padrão" : v==="nutri" ? "Plano alimentar" : "Plano Pedal + Força"; }
   RENDER[v]();
   document.querySelector("main").scrollTop = 0;
 }
 /* o Safari do iPhone ignora user-scalable=no: bloqueia a pinça na mão */
 ["gesturestart","gesturechange"].forEach(ev=>document.addEventListener(ev, e=>e.preventDefault(), {passive:false}));
 $("tabbar").addEventListener("click", e=>{ const b = e.target.closest("button[data-v]"); if (b) abrir(b.dataset.v); });
+$("hoje-nutri").onclick = e=>{ nt = e.currentTarget.dataset.t; abrir("nutri"); };
 abrir(RENDER[location.hash.slice(1)] ? location.hash.slice(1) : "hoje"); // link com #treinos abre direto na aba
 
 /* atualiza "agora" a cada minuto e quando o app volta pra frente */

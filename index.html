@@ -35,6 +35,7 @@
     </div>
     <div class="agora" id="agora" aria-live="polite"></div>
     <div class="ctx" id="hoje-ctx"></div>
+    <button type="button" class="ncomer" id="hoje-nutri"></button>
     <h2 class="sec">Treinos do dia</h2>
     <div class="cards" id="hoje-treinos"></div>
     <details class="fold" data-fold="agenda">
@@ -88,6 +89,50 @@
     <div class="glist" id="glist"></div>
   </section>
 
+  <!-- ============ NUTRIÇÃO ============ -->
+  <section class="view" id="v-nutri" data-tit="Nutrição" hidden>
+    <div class="seg" id="ntabs" role="group" aria-label="Tipo de dia"></div>
+    <div class="metas" id="nmetas"></div>
+    <p class="wknote" id="nnota"></p>
+    <h2 class="sec">Refeições</h2>
+    <ol class="tl" id="nrefs"></ol>
+    <p class="muted small">Horários da grade sem trabalho. Com trabalho à tarde, o almoço vai pra 11h15 e o lanche pré-treino vai na mochila.</p>
+
+    <h2 class="sec">A semana</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>Dia</th><th>Tipo</th><th>Kcal</th><th>Carbo</th></tr></thead>
+      <tbody id="nsemana"></tbody>
+    </table></div>
+
+    <details class="box">
+      <summary>Comer e beber no treino</summary>
+      <div class="tbl"><table>
+        <thead><tr><th>Duração</th><th>O que fazer</th></tr></thead>
+        <tbody id="ntreino"></tbody>
+      </table></div>
+    </details>
+
+    <details class="box">
+      <summary>Como montar o prato e ajustar</summary>
+      <div class="rules">
+        <div><h3>Proteína espalhada no dia</h3><p>Uns 30–40 g em cada refeição principal, em vez de tudo no jantar. Uma palma de mão de carne, frango ou peixe tem ~30 g; 3 ovos, ~20 g.</p></div>
+        <div><h3>O carboidrato acompanha o treino</h3><p>Muda de um dia pro outro; a proteína não. Arroz, macarrão, batata, pão e fruta sobem nos dias duros e no longo e descem no dia leve.</p></div>
+        <div><h3>Déficit pequeno, maior no dia leve</h3><p>A meta é perder gordura sem perder músculo. Na média da semana fica uns 300 kcal abaixo do gasto; nos dias duros, quase nada. Comer pouco em dia de intervalado derruba o treino e o músculo vai junto.</p></div>
+        <div><h3>Fora do plano</h3><p>Até o plano começar (12/10) e depois que ele acabar, vale o dia leve, a não ser que tenha treino de verdade.</p></div>
+        <div><h3>Semana de descarga</h3><p>Nas semanas 4, 8 e 12, terça e quinta valem como dia moderado: menos treino, menos carboidrato.</p></div>
+        <div><h3>Água</h3><p>Uns 2,5–3 L por dia, mais o que sair no treino. Urina clara é o melhor medidor.</p></div>
+        <div><h3>Como saber se está funcionando</h3><p>Pesa 1× por semana, sempre na mesma manhã, em jejum. Caindo 0,2–0,4 kg por semana: certo. Caindo mais que 0,5 kg ou o treino piorando: soma 1 porção de carboidrato nos dias duros.</p></div>
+      </div>
+    </details>
+
+    <details class="box">
+      <summary>Ponto de partida e meta</summary>
+      <div id="ninbody"></div>
+    </details>
+
+    <p class="muted small">Números estimados a partir do peso de hoje e do volume de treino. Vale validar com nutricionista, principalmente se for usar suplemento.</p>
+  </section>
+
   <!-- ============ GRADE ============ -->
   <section class="view" id="v-grade" data-tit="Grade" hidden>
     <div class="seg" id="modo" role="group" aria-label="Modo da grade">
@@ -136,6 +181,9 @@
   <button type="button" data-v="academia">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg>
     <span>Academia</span></button>
+  <button type="button" data-v="nutri">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8c-1.5-1.6-5.5-1.8-6.5 2.2-.9 3.6 1.4 9.3 4.2 9.8 1 .2 1.6-.4 2.3-.4s1.3.6 2.3.4c2.8-.5 5.1-6.2 4.2-9.8C17.5 6.2 13.5 6.4 12 8z"/><path d="M12 8c0-2 .8-3.6 2.5-4.5"/></svg>
+    <span>Nutrição</span></button>
   <button type="button" data-v="grade">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>
     <span>Grade</span></button>

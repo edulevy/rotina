@@ -195,3 +195,20 @@ td.num{white-space:nowrap}
   #v-grade .grid>.day:not(.on){display:block}
   .blk .bn{display:none}
 }
+
+/* nutrição */
+.n-leve{--c:var(--rest)} .n-mod{--c:var(--z3)} .n-duro{--c:var(--z4)} .n-longo{--c:var(--bike)}
+.metas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:10px;overflow:hidden}
+.metas div{background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.metas b{font-size:1.35rem;font-weight:700}
+.metas small{font-size:.75rem;font-weight:400;color:var(--muted)}
+@media (max-width:480px){.metas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#nrefs li{--c:var(--c-rotina)}
+#nrefs li.pre{--c:var(--bike)}
+#nsemana i.nd{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--c);margin-right:7px;vertical-align:0}
+#nsemana tr.hj td{background:color-mix(in srgb,var(--now) 8%,var(--surface))}
+#nsemana tr.hj b{color:var(--now)}
+#ninbody{display:flex;flex-direction:column;gap:10px;font-size:.92rem}
+.ncomer{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;width:100%;cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;padding:10px 14px;font-size:.95rem}
+.ncomer::after{content:"Ver refeições ›";font-size:.8rem;font-weight:600;color:var(--accent);margin-top:2px}
