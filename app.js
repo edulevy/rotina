@@ -32,14 +32,15 @@ function semanaDoPlano(d){
 /* ---------- sessões de um dia do plano ---------- */
 function sessoesDoDia(wk, d){
   const w = SEM[wk], bl = w.bloco;
+  /* seg corrida 1 · ter pedal · qua só academia · qui pedal · sex corrida 2 · sáb Z2 · dom longo (w.sex = pedal de quinta) */
   const plan = [
     [[w.r1,"run","Corrida 1 · 18h"],[{letra:"B",bloco:bl},"gym"]],
     [[w.ter,"bike","Pedal 05h15"],[{letra:"A",bloco:bl},"gym"]],
-    [[w.r2,"run","Corrida 2 · 18h"],[{letra:"D",bloco:bl},"gym"]],
+    [[{letra:"D",bloco:bl},"gym"]],
     [[w.sex,"bike","Pedal 05h15"],[{letra:"C",bloco:bl},"gym"]],
-    [[null,"rest","Folga antes do longo de amanhã. Cama às 21h."]],
-    [[w.sab,"bike","Pedal longo 05h15"]].concat(w.r3?[[w.r3,"run","Corrida 3 · transição"]]:[]),
-    [[null,"rest"],[{letra:"E",bloco:bl},"gym"]]
+    [[w.r2,"run","Corrida 2 · 18h"],[{letra:"E",bloco:bl},"gym"]],
+    [[w.sz2,"bike","Pedal Z2 05h15"]],
+    [[w.sab,"bike","Pedal longo 05h15"]].concat(w.r3?[[w.r3,"run","Corrida 3 · transição"]]:[])
   ];
   return plan[d].map(([s,k,lbl],j)=>({s, k, lbl, key:`plano26:s${wk}d${d}i${j}`}));
 }
@@ -141,7 +142,7 @@ $("weeknav").innerHTML = [1,2,3].map(b=>`<div class="wkg"><span class="eyebrow">
   SEM.map((w,i)=>w.bloco===b?`<button type="button" data-w="${i}" class="${w.deload?"deload":""}${i===semanaDoPlano(hoje0())?" now":""}" aria-pressed="false" aria-label="Semana ${i+1}${w.deload?" (descarga)":""}">S${i+1}</button>`:"").join("")}</div></div>`).join("");
 $("weeknav").addEventListener("click", e=>{ const b = e.target.closest("button[data-w]"); if(!b) return; wk = +b.dataset.w; renderTreinos(); });
 
-function zoneMins(w){ const m = {1:0,2:0,3:0,4:0,5:0}; [w.ter,w.sex,w.sab,w.r1,w.r2,w.r3].forEach(s=>{ if(s) s.seg.forEach(([t,z])=>m[z]+=t); }); return m; }
+function zoneMins(w){ const m = {1:0,2:0,3:0,4:0,5:0}; [w.ter,w.sex,w.sz2,w.sab,w.r1,w.r2,w.r3].forEach(s=>{ if(s) s.seg.forEach(([t,z])=>m[z]+=t); }); return m; }
 function renderTreinos(){
   const w = SEM[wk], ini = addDays(START, wk*7), hj = hoje0();
   document.querySelectorAll("#weeknav button").forEach(b=>b.setAttribute("aria-pressed", String(+b.dataset.w===wk)));
@@ -165,7 +166,7 @@ $("gtabs").addEventListener("click", e=>{ const b = e.target.closest("button[dat
 function renderAcademia(){
   document.querySelectorAll("#gtabs button").forEach(b=>b.setAttribute("aria-pressed", String(+b.dataset.b===gb)));
   $("gnote").textContent = `${BLOCOS[gb-1]}. ${GYM[gb].nota}`;
-  const letraHoje = ["B","A","D","C",null,null,"E"][dow(hoje0())];
+  const letraHoje = ["B","A","D","C","E",null,null][dow(hoje0())];
   $("glist").innerHTML = ["A","B","C","D","E"].map(L=>{ const g = GYM_META[L], hj = L===letraHoje;
     return `<div class="card gym gw${hj?" hoje":""}">${fold(`academia:${gb}${L}`, hj,
       `<span class="ch"><span class="t"><span class="kind">${esc(g.quando)}${hj?" · hoje":""}</span><h3>${L} · ${esc(g.nome)}</h3></span><span class="dur">${g.dur}</span></span>`,
@@ -190,7 +191,7 @@ function nutriDia(dt){
       if (k === "bike" || k === "run"){ s.seg.forEach(([t,z])=>{ treino += t*GASTO[k][z]; }); if (k === "bike") bikeMin = totMin(s.seg); }
       else if (k === "gym" && s.letra !== "E") treino += parseInt(GYM_META[s.letra].dur.replace(/\D/g,""),10)*GASTO.gym*(SEM[w].deload ? 0.6 : 1);
     });
-    if (d === 1 || d === 3) treino += GASTO.idaVolta*GASTO.bike[1];
+    if (d === 1 || d === 3 || d === 5) treino += GASTO.idaVolta*GASTO.bike[1];
   }
   const base = TMB*GASTO.fator, gasto = base + treino;
   const kcal = r50(Math.max(GASTO.piso, gasto - TIPOS[tipo].deficit + ATUAL.ajuste));

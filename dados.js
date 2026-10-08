@@ -163,13 +163,21 @@ const SEM = [
    r2: R("Trote 25' leve", P([5,1],[25,2]), ["5' caminhando","25' trote Z2"]) },
 ];
 
+/* pedal Z2 de sábado (desde 08/10/2026): minutos de Z2 por semana, o treino tem +15 (10' Z1 + 5' soltando).
+   Véspera do longo: Z2 de verdade, sem tiro. Mesma conta do plano_treino.py que vai pro Garmin. */
+const SAB_Z2 = [45,45,60,30,60,75,75,45,75,75,60,45];
+SEM.forEach((w,i)=>{ const z = SAB_Z2[i];
+  w.sz2 = B(`Z2 de sábado ${z+15}'`, P([10,1],[z,2],[5,1]),
+    ["10' Z1", `${z}' em Z2${w.deload?" baixo":""}, sem tiro. Na subida: marcha leve`, "5' Z1"],
+    "Véspera do longo: Z2 de verdade. Cansado? Corta pra 45'. Se for perder um pedal na semana, é este."); });
+
 /* ---------- academia ---------- */
 const GYM_META = {
   A:{nome:"Inferiores · Força", dur:"~55 min", quando:"Terça à noite (12 h depois do pedal)"},
   B:{nome:"Superiores · Empurrar e puxar", dur:"~50 min", quando:"Segunda"},
   C:{nome:"Inferiores · Potência", dur:"~45 min", quando:"Quinta"},
-  D:{nome:"Superiores 2 + core", dur:"~45 min", quando:"Quarta"},
-  E:{nome:"Mobilidade + core (opcional)", dur:"~25 min", quando:"Domingo (5ª academia, se quiser)"}
+  D:{nome:"Superiores 2 + core", dur:"~45 min", quando:"Quarta (dia sem corrida)"},
+  E:{nome:"Mobilidade + core (opcional)", dur:"~25 min", quando:"Sexta, depois da corrida (se quiser)"}
 };
 const E_FIXO = [
   ["Quadril 90/90 (troca de lado)","2×6","—","Devagar, tronco alto"],
@@ -225,17 +233,18 @@ const T = s => { const [h,m] = s.split(":"); return +h*60 + +m; };
 /* bloco: [início, fim, categoria, título, nota, opcional] */
 const b = (i,f,k,t,n,opt) => ({i:typeof i==="number"?i:T(i), f:typeof f==="number"?f:T(f), k, t, n:n||"", opt:!!opt});
 
-/* pedal sempre 05h15 (acorda 4h30): ter e qui aqui, sáb no sabado(). Corrida e academia à noite. */
+/* pedal sempre 05h15 (acorda 4h30): ter e qui aqui; sáb (Z2) e dom (longo) no sabado() e domingo().
+   Corrida (seg e sex) e academia à noite. */
 const PEDAL = {1:["Pedal intervalado","Dia duro. Inclui ida e volta"], 3:["Pedal Z2 + sprints","Z2 de verdade, tiros curtos. Inclui ida e volta"]};
-/* treino da noite de seg–sex: [duração em min, nome, nota] (sexta à noite é livre) */
+/* treino da noite de seg–sex: [duração em min, nome, nota] */
 const NOITE = [
   [90,"Corrida 1 + Academia B","Corrida principal e superiores"],
   [60,"Academia A · perna força","12 h depois do intervalado da manhã"],
-  [90,"Corrida 2 + Academia D","Corrida leve e superiores + core"],
+  [60,"Academia D · superiores + core","Sem corrida hoje: só a academia"],
   [60,"Academia C · potência","Pouco volume, saltos rápidos. 12 h depois do pedal da manhã"],
-  null
+  [60,"Corrida 2 + mobilidade","Corrida leve; a mobilidade (academia E) é opcional. Amanhã tem pedal às 05h15"]
 ];
-/* véspera de pedal (seg, qua, sex): deita cedo pra acordar 4h30 */
+/* véspera de pedal (seg, qua, sex; sábado fica no sabado()): deita cedo pra acordar 4h30 */
 const VESPERA = {0:true, 2:true, 4:true};
 
 function noite(fim, deitar){
@@ -281,7 +290,7 @@ function diaUtil(modo, d){
              b("17:00","18:00","rotina","Lanche e deslocamento","Lanche com carboidrato 1 h antes do treino"));
       iniNoite = T("18:00");
     } else {
-      o.push(b("16:30","19:00","livre","Livre","Sexta sem treino à noite: amanhã tem longo às 05h15"));
+      o.push(b("16:30","19:00","livre","Livre","Sem treino à noite"));
       return o.concat(noite(T("19:00"), deitar));
     }
   } else {
@@ -295,7 +304,7 @@ function diaUtil(modo, d){
       o.push(b("18:00","18:45","rotina","Deslocamento e lanche","Lanche no caminho pro treino"));
       iniNoite = T("18:45");
     } else {
-      o.push(b("18:00","19:00","livre","Volta pra casa","Sexta sem treino à noite: amanhã tem longo às 05h15"));
+      o.push(b("18:00","19:00","livre","Volta pra casa","Sem treino à noite"));
       return o.concat(noite(T("19:00"), deitar));
     }
   }
@@ -304,30 +313,33 @@ function diaUtil(modo, d){
   return o.concat(noite(iniNoite+tr[0], deitar));
 }
 
+/* sábado: pedal Z2 de manhã e véspera do longo (cama às 21h) */
 function sabado(modo){
   const o = [
     b("00:00","04:30","sono","Sono"),
-    b("04:30","05:15","rotina","Acordar e café leve","Carboidrato: pão, tapioca, banana"),
-    b("05:15","09:00","treino","Pedal longo","2h a 3h30 conforme a semana. Transição de corrida a partir da sem. 7"),
-    b("09:00","10:30","rotina","Banho e café da manhã reforçado")
+    b("04:30","05:15","rotina","Acordar e café leve","Banana, pão. Água"),
+    b("05:15","07:30","treino","Pedal Z2","1h a 1h30 em Z2, sem tiro. Inclui ida e volta. Amanhã tem longo"),
+    b("07:30","09:00","rotina","Banho e café da manhã")
   ];
   if (modo === "B") o.push(
-    b("10:30","14:00","livre","Livre e almoço"),
+    b("09:00","14:00","livre","Livre e almoço"),
     b("14:00","16:00","foco","Foco extra · TCC","Repõe parte das horas que o trabalho tirou da semana"),
-    b("16:00","21:30","livre","Livre"));
-  else o.push(b("10:30","21:30","livre","Livre","Resto do dia livre"));
-  o.push(b("21:30","22:00","rotina","Desacelerar","Sem tela, luz baixa"), b("22:00",1440,"sono","Sono"));
+    b("16:00","20:30","livre","Livre","Jantar com carboidrato, pouca fibra"));
+  else o.push(b("09:00","20:30","livre","Livre","Descansa as pernas. Jantar com carboidrato, pouca fibra"));
+  o.push(b("20:30","21:00","rotina","Desacelerar","Sem tela, luz baixa"), b("21:00",1440,"sono","Sono","Amanhã: longo às 05h15"));
   return o;
 }
 
+/* domingo: o longo */
 function domingo(modo){
   return [
-    b("00:00","06:00","sono","Sono"),
-    b("06:00","07:00","rotina","Café sem pressa","Se a semana pesou, dorme até 7h"),
-    b("07:00","09:00","livre","Livre"),
-    b("09:00","09:30","treino","Academia E · mobilidade","Opcional",true),
-    b("09:30","11:30","estudo","Reserva · pendências", modo==="B" ? "Disciplinas da semana. Se estiver em dia, é livre" : "Só se a semana atrasou. Senão, é livre",true),
-    b("11:30","18:00","livre","Livre"),
+    b("00:00","04:30","sono","Sono"),
+    b("04:30","05:15","rotina","Acordar e café pré-longo","Carboidrato: pão, tapioca, banana"),
+    b("05:15","09:00","treino","Pedal longo","2h a 3h30 conforme a semana. Transição de corrida a partir da sem. 7"),
+    b("09:00","10:30","rotina","Banho e café da manhã reforçado"),
+    b("10:30","14:00","livre","Livre e almoço","Cochilo depois do almoço vale"),
+    b("14:00","16:00","estudo","Reserva · pendências", modo==="B" ? "Disciplinas da semana. Se estiver em dia, é livre" : "Só se a semana atrasou. Senão, é livre",true),
+    b("16:00","18:00","livre","Livre"),
     b("18:00","18:45","plano","Planejamento da semana", modo==="B" ? "Escolhe as 3 entregas do TCC, revisa disciplinas e confere os treinos" : "Escolhe as 3 entregas do TCC e confere os treinos"),
     b("18:45","21:30","livre","Livre e jantar"),
     b("21:30","22:00","rotina","Desacelerar","Sem tela, luz baixa"),
@@ -363,7 +375,7 @@ const GASTO = {
   bike: {1:4.5, 2:7, 3:9, 4:11, 5:12.5},   // kcal por minuto além do repouso, 75 kg
   run:  {1:3.5, 2:8.5, 3:10, 4:11.5, 5:13},// zona 1 da corrida = caminhada
   gym: 4,                   // musculação com descanso entre séries
-  idaVolta: 20,             // minutos de Z1 indo e voltando do pedal de terça e quinta
+  idaVolta: 20,             // minutos de Z1 indo e voltando do pedal de terça, quinta e sábado
   piso: 1800                // nunca abaixo disso, nem no dia mais leve
 };
 
@@ -377,11 +389,11 @@ const TIPOS = {
   duro:    {nome:"Dia duro", deficit:250, cls:"n-duro",
             nota:"Pedal de manhã e academia à noite. Dois treinos: carboidrato antes e depois de cada um."},
   vespera: {nome:"Véspera do longo", deficit:150, cls:"n-vesp",
-            nota:"Sem treino, mas amanhã tem longo às 05h15. Quase sem déficit e o carboidrato concentrado no jantar."},
+            nota:"Pedal Z2 de manhã e longo amanhã às 05h15. Quase sem déficit, com o carboidrato pesando no jantar."},
   longo:   {nome:"Dia do longo", deficit:150, cls:"n-longo",
             nota:"O carboidrato do pedal vem por fora da meta. Depois de chegar, recuperação de verdade."}
 };
-const DIA_TIPO = ["moderado","duro","moderado","duro","vespera","longo","leve"]; // seg → dom
+const DIA_TIPO = ["moderado","duro","moderado","duro","moderado","vespera","longo"]; // seg → dom (sáb = Z2 + véspera do longo)
 const PROT = 2.0, GORD = 0.8;   // g por kg de peso
 
 /* refeições: [hora, nome, o que comer, proteína g, parte do carboidrato do dia].
@@ -399,9 +411,9 @@ const REFEICOES = {
   moderado: [
     ["06:00","Café da manhã","Ovos + pão ou tapioca + fruta + café com leite.",30,0.20],
     ["12:00","Almoço","Arroz e feijão, carne, frango ou peixe, salada e legume.",40,0.30],
-    ["17:00","Lanche pré-treino","Pão com queijo ou pasta de amendoim + banana. Leve: tem corrida.",20,0.20],
+    ["17:00","Lanche pré-treino","Pão com queijo ou pasta de amendoim + banana, 1 h antes do treino.",20,0.20],
     ["19:30","Jantar","Proteína + arroz, batata ou macarrão + legumes. Depois de corrida + academia, não pula.",45,0.25],
-    ["21:00","Ceia","Iogurte, skyr ou um copo de leite. Proteína antes de dormir ajuda a recuperar o músculo.",15,0.05]
+    ["20:30","Ceia","Iogurte, skyr ou um copo de leite. Proteína antes de dormir ajuda a recuperar o músculo.",15,0.05]
   ],
   leve: [
     ["07:00","Café da manhã","Ovos + pão ou tapioca + fruta + café.",35,0.25],
@@ -410,10 +422,12 @@ const REFEICOES = {
     ["19:30","Jantar","Proteína + legumes à vontade + o carboidrato que sobrou.",45,0.25]
   ],
   vespera: [
-    ["06:00","Café da manhã","Ovos + pão ou tapioca + fruta + café.",35,0.20],
-    ["12:00","Almoço","Arroz e feijão, proteína, salada e legume.",45,0.30],
-    ["16:00","Lanche","Iogurte + fruta + aveia.",25,0.15],
-    ["19:00","Jantar","Macarrão ou arroz branco + frango ou peixe + pouco legume. Pouca fibra e pouca gordura: amanhã acorda 4h30.",45,0.35]
+    ["04:30","Café leve","Pão branco ou tapioca com mel + banana.",0,0.10],
+    ["Na bike","Durante o pedal","",0,0],
+    ["07:30","Café da manhã","Ovos + pão ou tapioca + fruta + café com leite.",35,0.25],
+    ["12:30","Almoço","Arroz e feijão, proteína, salada e legume.",45,0.25],
+    ["16:00","Lanche","Iogurte + fruta + aveia.",25,0.10],
+    ["19:00","Jantar","Macarrão ou arroz branco + frango ou peixe + pouco legume. Pouca fibra e pouca gordura: amanhã é o longo às 05h15.",45,0.30]
   ],
   longo: [
     ["04:30","Café pré-longo","Pão branco ou tapioca com mel + banana + água.",10,0.12],
@@ -421,7 +435,7 @@ const REFEICOES = {
     ["09:00","Café reforçado","Ovos, pão, fruta, iogurte com granola. Até 1 h depois de chegar.",35,0.25],
     ["13:00","Almoço","Prato cheio: arroz, feijão, proteína, salada.",45,0.30],
     ["16:30","Lanche","Sanduíche, ou açaí com granola + iogurte.",20,0.13],
-    ["20:00","Jantar","Proteína + carboidrato + legumes. Amanhã é dia leve.",40,0.20]
+    ["20:00","Jantar","Proteína + carboidrato + legumes. É a recuperação do fim de semana.",40,0.20]
   ]
 };
 /* fora das 12 semanas não tem pedal de manhã: dia leve com o café às 7h */
