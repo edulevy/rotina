@@ -342,74 +342,116 @@ return {CAT, ORDEM, semana};
 
 
 /* ================= NUTRIÇÃO ================= */
-/* Base das contas: o peso de hoje (estimativa do Levy, out/26). Com um InBody novo, troca ATUAL
-   e todos os alvos da aba se recalculam. */
+/* Como a conta funciona (app.js, metasDoDia):
+   gasto do dia = TMB × fator do dia a dia + o que os treinos daquele dia gastam (minutos por zona)
+   meta = gasto − déficit do tipo de dia (+ ATUAL.ajuste)
+   proteína e gordura fixas por kg; o carboidrato é o que sobra, então ele sobe e desce com o treino. */
 window.NUTRI = (function(){
 "use strict";
-const ATUAL = {peso:75, pgc:20, fonte:"estimativa, out/26"};
-/* InBody de 27/08/2025 (InBody270): só referência, o condicionamento já caiu desde então */
-const INBODY = {data:"27/08/25", peso:74.8, mme:35.1, pgc:17.3, gordura:13.0, tmb:1706, visceral:5, tronco:162};
-/* melhor marca do histórico do InBody (28/02/24) */
-const MELHOR = {data:"fev/24", peso:70.5, mme:35.6, pgc:11.1};
+/* Base das contas: estimativa do Levy (out/26). Com um InBody novo, troca peso e pgc.
+   ajuste: depois de 2 semanas pesando, soma ou tira kcal de todos os dias (ver "Como ajustar"). */
+const ATUAL = {peso:75, pgc:20, fonte:"estimativa, out/26", ajuste:0};
 
-/* tipo de dia: g/kg de carboidrato, proteína e gordura. kcal sai da conta (4/4/9).
-   Proteína alta (2 g/kg) pra segurar e recuperar músculo enquanto a gordura cai. */
-const TIPOS = {
-  leve:    {nome:"Dia leve",     carb:3,   prot:2, gord:0.8, cls:"n-leve",
-            nota:"Sem treino ou só mobilidade. É o dia de maior déficit: menos arroz e pão, a mesma proteína."},
-  moderado:{nome:"Dia moderado", carb:4.5, prot:2, gord:0.8, cls:"n-mod",
-            nota:"Corrida + academia à noite. O lanche das 17h é o que segura o treino."},
-  duro:    {nome:"Dia duro",     carb:6,   prot:2, gord:0.8, cls:"n-duro",
-            nota:"Intervalado ou força de manhã e academia à noite. Dois treinos: carboidrato nos dois lados."},
-  longo:   {nome:"Dia do longo", carb:7,   prot:2, gord:0.8, cls:"n-longo",
-            nota:"2h a 3h30 de bike. O que comer no pedal vem por cima desse total."}
-};
-/* seg → dom, igual à grade */
-const DIA_TIPO = ["moderado","duro","moderado","duro","leve","longo","leve"];
-
-/* refeições por tipo de dia: [hora, nome, o que comer, proteína g]. Horários da grade "sem trabalho". */
-const pedalManha = [
-  ["04:30","Café leve","1 banana + 1 pão com mel ou geleia + água. Pouca fibra e pouca gordura.",0],
-  ["Na bike","Durante o pedal","Água. Acima de 75' de pedal, 30–60 g de carboidrato por hora (gel, banana, rapadura).",0],
-  ["07:00","Café da manhã de verdade","3 ovos mexidos + 2 fatias de pão ou tapioca + fruta + café com leite. É a recuperação do pedal.",35]
+/* histórico do InBody (gordura e massa magra em kg, calculadas de peso × %) */
+const HIST = [
+  {quando:"2022–24", peso:"70,5–75,2", pgc:"11–14%", gord:"8–10,5", magra:"62,5–64,7"},
+  {quando:"ago/25",  peso:"74,8", pgc:"17,3%", gord:"12,9", magra:"61,9"}
 ];
+
+const GASTO = {
+  fator: 1.35,              // dia a dia sem treino: estudo sentado, algumas caminhadas
+  bike: {1:4.5, 2:7, 3:9, 4:11, 5:12.5},   // kcal por minuto além do repouso, 75 kg
+  run:  {1:3.5, 2:8.5, 3:10, 4:11.5, 5:13},// zona 1 da corrida = caminhada
+  gym: 4,                   // musculação com descanso entre séries
+  idaVolta: 20,             // minutos de Z1 indo e voltando do pedal de terça e quinta
+  piso: 1800                // nunca abaixo disso, nem no dia mais leve
+};
+
+/* tipo de dia: pelo dia da semana dentro do plano. O déficit muda com o tipo;
+   o tamanho do treino (e com ele o carboidrato) vem dos minutos daquela semana. */
+const TIPOS = {
+  leve:    {nome:"Dia leve", deficit:450, cls:"n-leve",
+            nota:"Sem treino. É o dia de maior déficit: o carboidrato cai, a proteína fica igual."},
+  moderado:{nome:"Dia moderado", deficit:350, cls:"n-mod",
+            nota:"Corrida + academia à noite. O lanche das 17h segura o treino; o jantar recupera."},
+  duro:    {nome:"Dia duro", deficit:250, cls:"n-duro",
+            nota:"Pedal de manhã e academia à noite. Dois treinos: carboidrato antes e depois de cada um."},
+  vespera: {nome:"Véspera do longo", deficit:150, cls:"n-vesp",
+            nota:"Sem treino, mas amanhã tem longo às 05h15. Quase sem déficit e o carboidrato concentrado no jantar."},
+  longo:   {nome:"Dia do longo", deficit:150, cls:"n-longo",
+            nota:"O carboidrato do pedal vem por fora da meta. Depois de chegar, recuperação de verdade."}
+};
+const DIA_TIPO = ["moderado","duro","moderado","duro","vespera","longo","leve"]; // seg → dom
+const PROT = 2.0, GORD = 0.8;   // g por kg de peso
+
+/* refeições: [hora, nome, o que comer, proteína g, parte do carboidrato do dia].
+   "Na bike" tem parte 0: o carboidrato do pedal é calculado à parte. */
 const REFEICOES = {
-  duro: pedalManha.concat([
-    ["10:00","Lanche","Iogurte natural + granola + 1 fruta.",15],
-    ["12:00","Almoço","Prato cheio: arroz e feijão (meio prato), 150 g de carne/frango/peixe, salada e legume.",40],
-    ["17:00","Lanche pré-treino","Sanduíche de pão com frango ou queijo + banana. 1 h antes da academia.",20],
-    ["19:00","Jantar","Igual ao almoço, com batata ou macarrão no lugar do arroz se quiser. Proteína + carboidrato.",35]
-  ]),
+  duro: [
+    ["04:30","Café leve","Pão branco ou tapioca com mel + banana. Pouca fibra e pouca gordura, pra não pesar no pedal.",0,0.10],
+    ["Na bike","Durante o pedal","",0,0],
+    ["07:00","Café da manhã de verdade","Ovos mexidos + pão ou tapioca + fruta + café com leite. É a recuperação do pedal.",35,0.25],
+    ["10:00","Lanche","Iogurte natural ou skyr + aveia ou granola + fruta.",15,0.10],
+    ["12:00","Almoço","Arroz e feijão, carne, frango ou peixe, salada e legume.",40,0.25],
+    ["17:00","Lanche pré-treino","Sanduíche de pão com frango ou queijo + banana. 1 h antes da academia.",20,0.15],
+    ["19:00","Jantar","Proteína + arroz, batata ou macarrão + legumes.",40,0.15]
+  ],
   moderado: [
-    ["06:00","Café da manhã","3 ovos + pão + fruta + café com leite.",30],
-    ["12:00","Almoço","Arroz e feijão (um terço do prato), 150 g de carne/frango/peixe, salada e legume.",40],
-    ["17:00","Lanche pré-treino","Pão com queijo ou pasta de amendoim + banana. Leve: tem corrida.",15],
-    ["19:30","Jantar","180 g de carne/frango/peixe + arroz, batata ou macarrão + legumes. Depois de corrida + academia, não pula.",45],
-    ["21:00","Ceia (se der fome)","Iogurte ou um copo de leite. Ajuda a fechar a proteína do dia.",15]
+    ["06:00","Café da manhã","Ovos + pão ou tapioca + fruta + café com leite.",30,0.20],
+    ["12:00","Almoço","Arroz e feijão, carne, frango ou peixe, salada e legume.",40,0.30],
+    ["17:00","Lanche pré-treino","Pão com queijo ou pasta de amendoim + banana. Leve: tem corrida.",20,0.20],
+    ["19:30","Jantar","Proteína + arroz, batata ou macarrão + legumes. Depois de corrida + academia, não pula.",45,0.25],
+    ["21:00","Ceia","Iogurte, skyr ou um copo de leite. Proteína antes de dormir ajuda a recuperar o músculo.",15,0.05]
   ],
   leve: [
-    ["06:00","Café da manhã","3 ovos + 1 pão ou tapioca pequena + fruta + café.",30],
-    ["12:00","Almoço","Metade do prato de salada e legume, 180 g de carne/frango/peixe, arroz e feijão em porção pequena.",45],
-    ["16:00","Lanche","Iogurte natural + fruta + 2 fatias de queijo.",20],
-    ["19:30","Jantar","180 g de proteína + legumes. Carboidrato pouco: arroz ou batata do tamanho de uma mão fechada.",45]
+    ["07:00","Café da manhã","Ovos + pão ou tapioca + fruta + café.",35,0.25],
+    ["12:00","Almoço","Metade do prato de salada e legume, proteína, arroz e feijão.",45,0.35],
+    ["16:00","Lanche","Iogurte natural ou skyr + fruta.",25,0.15],
+    ["19:30","Jantar","Proteína + legumes à vontade + o carboidrato que sobrou.",45,0.25]
+  ],
+  vespera: [
+    ["06:00","Café da manhã","Ovos + pão ou tapioca + fruta + café.",35,0.20],
+    ["12:00","Almoço","Arroz e feijão, proteína, salada e legume.",45,0.30],
+    ["16:00","Lanche","Iogurte + fruta + aveia.",25,0.15],
+    ["19:00","Jantar","Macarrão ou arroz branco + frango ou peixe + pouco legume. Pouca fibra e pouca gordura: amanhã acorda 4h30.",45,0.35]
   ],
   longo: [
-    ["04:30","Café pré-longo","2 pães ou tapioca com mel + banana + água. Um pouco mais que nos outros dias: vai ser longe.",10],
-    ["Na bike","Durante o longo","60–90 g de carboidrato por hora a partir da 1ª hora + 500–750 ml de água por hora, com sal no calor.",0],
-    ["09:00","Café reforçado","Ovos, pão, fruta, iogurte com granola. Até 1 h depois de chegar.",35],
-    ["13:00","Almoço","Prato cheio: arroz, feijão, 180 g de proteína, salada. Hoje o carboidrato vem sem culpa.",45],
-    ["16:30","Lanche","Sanduíche ou açaí com granola + iogurte.",15],
-    ["20:00","Jantar","180 g de proteína + carboidrato + legumes. Amanhã é dia leve.",45]
+    ["04:30","Café pré-longo","Pão branco ou tapioca com mel + banana + água.",10,0.12],
+    ["Na bike","Durante o longo","",0,0],
+    ["09:00","Café reforçado","Ovos, pão, fruta, iogurte com granola. Até 1 h depois de chegar.",35,0.25],
+    ["13:00","Almoço","Prato cheio: arroz, feijão, proteína, salada.",45,0.30],
+    ["16:30","Lanche","Sanduíche, ou açaí com granola + iogurte.",20,0.13],
+    ["20:00","Jantar","Proteína + carboidrato + legumes. Amanhã é dia leve.",40,0.20]
   ]
 };
+/* fora das 12 semanas não tem pedal de manhã: dia leve com o café às 7h */
 
-/* comer e beber no treino, pela duração */
-const NO_TREINO = [
-  ["Até 75'","Só água. Comer antes já dá conta."],
-  ["75'–2h","30–60 g de carboidrato por hora (1 gel ou 1 banana a cada 30–40'). 500 ml de água por hora."],
-  ["Mais de 2h","60–90 g por hora, começando na 1ª hora. 500–750 ml por hora; no calor do Rio, uma pitada de sal ou isotônico."],
-  ["Corrida","Até 45' (o caso das 12 semanas): nada. Água depois."]
+/* carboidrato durante o pedal, em g por hora, pela duração da sessão */
+const NA_BIKE = [[75,0],[120,45],[Infinity,70]]; // até 75' nada; até 2h 45 g/h; acima 70 g/h
+
+/* trocas: quanto de cada alimento dá ~30 g de carboidrato ou ~25 g de proteína.
+   Valores aproximados (tabela TACO e rótulos comuns). */
+const TROCAS_CARB = [
+  ["Arroz branco cozido","110 g · 4 colheres de sopa cheias"],
+  ["Macarrão cozido","100 g · 1 pegador cheio"],
+  ["Pão francês","1 unidade (50 g)"],
+  ["Tapioca","3 colheres de sopa de goma (35 g)"],
+  ["Batata ou aipim cozido","Batata: 160 g (1 grande) · aipim: 100 g"],
+  ["Banana prata","2 pequenas (~120 g sem casca)"],
+  ["Aveia","50 g · 5 colheres de sopa (+ 7 g de proteína)"],
+  ["Feijão cozido","2 conchas (200 g) (+ 10 g de proteína)"],
+  ["Mel","2 colheres de sopa (40 g)"]
+];
+const TROCAS_PROT = [
+  ["Peito de frango grelhado","80 g"],
+  ["Patinho ou alcatra grelhado","75 g"],
+  ["Peixe branco grelhado","100 g"],
+  ["Atum em lata (drenado)","1 lata (110 g)"],
+  ["Ovos","4 unidades (+ 20 g de gordura: conta como gordura do dia)"],
+  ["Skyr ou iogurte proteico","250 g"],
+  ["Whey protein","1 dose (30 g)"],
+  ["Queijo minas frescal","150 g (+ 25 g de gordura)"]
 ];
 
-return {ATUAL, INBODY, MELHOR, TIPOS, DIA_TIPO, REFEICOES, NO_TREINO};
+return {ATUAL, HIST, GASTO, TIPOS, DIA_TIPO, PROT, GORD, REFEICOES, NA_BIKE, TROCAS_CARB, TROCAS_PROT};
 })();

@@ -35,7 +35,11 @@
     </div>
     <div class="agora" id="agora" aria-live="polite"></div>
     <div class="ctx" id="hoje-ctx"></div>
-    <button type="button" class="ncomer" id="hoje-nutri"></button>
+    <details class="fold ncomer" data-fold="comer" id="hoje-nutri">
+      <summary><span class="ft" id="hoje-nutri-res"></span></summary>
+      <ol class="tl" id="hoje-refs"></ol>
+      <button type="button" class="lnk" id="hoje-nutri-ir">Ver a semana na aba Nutrição ›</button>
+    </details>
     <h2 class="sec">Treinos do dia</h2>
     <div class="cards" id="hoje-treinos"></div>
     <details class="fold" data-fold="agenda">
@@ -91,37 +95,58 @@
 
   <!-- ============ NUTRIÇÃO ============ -->
   <section class="view" id="v-nutri" data-tit="Nutrição" hidden>
-    <div class="seg" id="ntabs" role="group" aria-label="Tipo de dia"></div>
+    <div class="stepper">
+      <button type="button" class="ibtn" id="nwk-ant" aria-label="Semana anterior">‹</button>
+      <span class="nwk" id="nwk"></span>
+      <button type="button" class="ibtn" id="nwk-prox" aria-label="Próxima semana">›</button>
+    </div>
+    <div class="daytabs" id="ndias" role="group" aria-label="Escolher dia"></div>
+    <div class="ndia" id="ndia"></div>
     <div class="metas" id="nmetas"></div>
+    <p class="muted small mono" id="ngasto"></p>
     <p class="wknote" id="nnota"></p>
     <h2 class="sec">Refeições</h2>
     <ol class="tl" id="nrefs"></ol>
-    <p class="muted small">Horários da grade sem trabalho. Com trabalho à tarde, o almoço vai pra 11h15 e o lanche pré-treino vai na mochila.</p>
+    <p class="muted small">Horários da grade sem trabalho. Com trabalho à tarde, o almoço vai pra 11h15 e o lanche pré-treino vai na mochila. Pra transformar gramas em comida, veja as trocas lá embaixo.</p>
 
     <h2 class="sec">A semana</h2>
-    <div class="tbl"><table>
-      <thead><tr><th>Dia</th><th>Tipo</th><th>Kcal</th><th>Carbo</th></tr></thead>
+    <div class="tbl"><table class="nsem">
+      <thead><tr><th>Dia</th><th>Tipo</th><th>Gasto</th><th>Meta</th><th>Carbo</th></tr></thead>
       <tbody id="nsemana"></tbody>
     </table></div>
+    <p class="muted small" id="nsemres"></p>
 
     <details class="box">
-      <summary>Comer e beber no treino</summary>
-      <div class="tbl"><table>
-        <thead><tr><th>Duração</th><th>O que fazer</th></tr></thead>
-        <tbody id="ntreino"></tbody>
-      </table></div>
+      <summary>Trocas: gramas em comida</summary>
+      <p>Cada linha dá uns <b>30 g de carboidrato</b>. Uma refeição de 90 g de carbo, por exemplo, é 2 trocas de arroz + 1 banana.</p>
+      <div class="tbl"><table><tbody id="ntrocac"></tbody></table></div>
+      <p>Cada linha dá uns <b>25 g de proteína</b>.</p>
+      <div class="tbl"><table><tbody id="ntrocap"></tbody></table></div>
+      <p class="muted small">Valores aproximados (tabela TACO e rótulos comuns). Pesa a comida já pronta nas primeiras semanas; depois o olho aprende.</p>
     </details>
 
     <details class="box">
-      <summary>Como montar o prato e ajustar</summary>
+      <summary>Comer e beber no treino</summary>
       <div class="rules">
-        <div><h3>Proteína espalhada no dia</h3><p>Uns 30–40 g em cada refeição principal, em vez de tudo no jantar. Uma palma de mão de carne, frango ou peixe tem ~30 g; 3 ovos, ~20 g.</p></div>
-        <div><h3>O carboidrato acompanha o treino</h3><p>Muda de um dia pro outro; a proteína não. Arroz, macarrão, batata, pão e fruta sobem nos dias duros e no longo e descem no dia leve.</p></div>
-        <div><h3>Déficit pequeno, maior no dia leve</h3><p>A meta é perder gordura sem perder músculo. Na média da semana fica uns 300 kcal abaixo do gasto; nos dias duros, quase nada. Comer pouco em dia de intervalado derruba o treino e o músculo vai junto.</p></div>
-        <div><h3>Fora do plano</h3><p>Até o plano começar (12/10) e depois que ele acabar, vale o dia leve, a não ser que tenha treino de verdade.</p></div>
-        <div><h3>Semana de descarga</h3><p>Nas semanas 4, 8 e 12, terça e quinta valem como dia moderado: menos treino, menos carboidrato.</p></div>
-        <div><h3>Água</h3><p>Uns 2,5–3 L por dia, mais o que sair no treino. Urina clara é o melhor medidor.</p></div>
-        <div><h3>Como saber se está funcionando</h3><p>Pesa 1× por semana, sempre na mesma manhã, em jejum. Caindo 0,2–0,4 kg por semana: certo. Caindo mais que 0,5 kg ou o treino piorando: soma 1 porção de carboidrato nos dias duros.</p></div>
+        <div><h3>Até 75 minutos</h3><p>Só água. O café leve das 4h30 dá conta.</p></div>
+        <div><h3>De 75 minutos a 2 horas</h3><p>45 g de carboidrato por hora a partir dos 30 minutos: 1 gel, 1 banana ou 2 colheres de mel a cada 40 minutos.</p></div>
+        <div><h3>Mais de 2 horas</h3><p>70 g por hora desde a primeira hora: gel + banana, ou isotônico + gel. Treina o estômago nos longos menores.</p></div>
+        <div><h3>Água e sal</h3><p>500–750 ml por hora. No calor do Rio, acima de 90 minutos, isotônico ou uma pitada de sal na garrafa.</p></div>
+        <div><h3>Corrida</h3><p>Até 45 minutos (todas as do plano): nada durante. Água depois.</p></div>
+      </div>
+    </details>
+
+    <details class="box">
+      <summary>Como ajustar</summary>
+      <div class="rules">
+        <div><h3>Proteína espalhada</h3><p>30–45 g em cada refeição, não tudo no jantar. Nas noites de academia, a ceia com iogurte ou leite fecha a conta.</p></div>
+        <div><h3>O carboidrato acompanha o treino</h3><p>A meta de cada dia já vem do treino daquela semana. Semana mais longa, mais carboidrato; semana de descarga, menos.</p></div>
+        <div><h3>Pesar do jeito certo</h3><p>3 manhãs por semana, em jejum, depois do banheiro. Vale a <b>média da semana</b>, não o número de um dia. Cintura na altura do umbigo, 1 vez por semana.</p></div>
+        <div><h3>Ajuste a cada 2 semanas</h3><p>Média caindo 0,2–0,4 kg por semana: está certo. Parada e cintura igual: −150 kcal por dia. Caindo mais de 0,6 kg ou o treino piorando: +150 kcal por dia. A mudança vai em <span class="mono">ajuste</span> no dados.js.</p></div>
+        <div><h3>Peso parado, cintura caindo</h3><p>É o melhor cenário: perdendo gordura e ganhando músculo ao mesmo tempo. Não corta mais nada.</p></div>
+        <div><h3>Fibra, fruta e legume</h3><p>2–3 frutas e legume em 2 refeições por dia. Menos fibra só no café antes do pedal e no jantar da véspera do longo.</p></div>
+        <div><h3>Creatina</h3><p>3–5 g por dia, todo dia, em qualquer horário. É o suplemento com mais evidência pra força e massa magra. Pode subir 1 kg na balança por água. Confirma com a nutricionista antes.</p></div>
+        <div><h3>Álcool</h3><p>Atrapalha a recuperação e o sono. Se for beber, que não seja na véspera do longo.</p></div>
       </div>
     </details>
 
@@ -130,7 +155,7 @@
       <div id="ninbody"></div>
     </details>
 
-    <p class="muted small">Números estimados a partir do peso de hoje e do volume de treino. Vale validar com nutricionista, principalmente se for usar suplemento.</p>
+    <p class="muted small">Gasto e metas são estimativas: o ajuste de 2 em 2 semanas corrige o que a conta errar. Vale validar com nutricionista.</p>
   </section>
 
   <!-- ============ GRADE ============ -->

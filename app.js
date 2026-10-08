@@ -111,22 +111,23 @@ function renderHoje(){
   if (fer) ctx = `<span class="conferir">${esc(fer)}</span> ` + ctx;
   $("hoje-ctx").innerHTML = ctx ? `<div class="wknote">${ctx}</div>` : "";
 
-  const tn = tipoDoDia(dia), mn = metas(tn);
-  $("hoje-nutri").className = `ncomer ${TIPOS[tn].cls}`;
-  $("hoje-nutri").dataset.t = tn;
-  $("hoje-nutri").innerHTML = `<span class="eyebrow">Comer ${rel ? rel.toLowerCase() : "no dia"} · ${TIPOS[tn].nome}</span><span><b class="mono">${milhar(mn.kcal)} kcal</b> · ${mn.prot} g proteína · ${mn.carb} g carbo</span>`;
+  const n = nutriDia(dia);
+  $("hoje-nutri").className = `fold ncomer ${TIPOS[n.tipo].cls}`;
+  $("hoje-nutri-res").innerHTML = `<span class="eyebrow">Comer ${rel ? rel.toLowerCase() : "no dia"} · ${TIPOS[n.tipo].nome}</span><span><b class="mono">${milhar(n.kcal)} kcal</b> · ${n.prot} g proteína · ${n.carb} g carbo</span>`;
+  $("hoje-refs").innerHTML = refeicoesHTML(n);
+  $("hoje-nutri-ir").onclick = ()=>{ nwk = wk === null ? (dia < START ? -1 : SEM.length-1) : wk; nd = d; abrir("nutri"); };
 
   $("hoje-treinos").innerHTML = wk === null
     ? `<p class="empty">Sem treino do plano neste dia.</p>`
     : sessoesDoDia(wk, d).map(x=>card(x, wk, "hoje", true)).join("");
 
-  /* agenda: sem o sono da madrugada; fechada mostra só o resumo */
-  const itens = blocos.filter(x=>!(x.k==="sono" && x.i===0));
+  /* agenda: só os treinos do dia; fechada mostra só o resumo */
+  const itens = blocos.filter(x=>x.k==="treino");
   const atual = ehHoje && itens.find(x=>m>=x.i && m<x.f);
-  $("agenda-resumo").textContent = atual ? `Agora: ${atual.t} · ${itens.length} itens` : `${itens.length} itens · ${hhmm(itens[0].i)} → ${hhmm(itens[itens.length-1].i)}`;
+  $("agenda-resumo").textContent = !itens.length ? "Sem treino na agenda" : atual ? `Agora: ${atual.t}` : `${itens.length} ${itens.length>1?"treinos":"treino"} · ${itens.map(x=>hhmm(x.i)).join(" e ")}`;
   $("hoje-agenda").innerHTML = itens.map(x=>{
     const cls = [CAT[x.k].cls, x.opt?"opt":"", ehHoje && m>=x.f ? "past":"", ehHoje && m>=x.i && m<x.f ? "cur":""].join(" ");
-    return `<li class="${cls}"><span class="h">${hhmm(x.i)}${x.k==="sono"?"":"–"+hhmm(x.f)}</span><div><div class="t">${esc(x.t)}</div>${x.n?`<div class="n">${esc(x.n)}</div>`:""}</div></li>`;
+    return `<li class="${cls}"><span class="h">${hhmm(x.i)}–${hhmm(x.f)}</span><div><div class="t">${esc(x.t)}</div>${x.n?`<div class="n">${esc(x.n)}</div>`:""}</div></li>`;
   }).join("");
 }
 $("dia-ant").onclick = ()=>{ offset--; renderHoje(); };
@@ -172,51 +173,94 @@ function renderAcademia(){
 }
 
 /* ================= NUTRIÇÃO ================= */
-const {ATUAL, INBODY, MELHOR, TIPOS, DIA_TIPO, REFEICOES, NO_TREINO} = window.NUTRI;
-const r50 = n => Math.round(n/50)*50;
+const {ATUAL, HIST, GASTO, TIPOS, DIA_TIPO, PROT, GORD, REFEICOES, NA_BIKE, TROCAS_CARB, TROCAS_PROT} = window.NUTRI;
+const r50 = n => Math.round(n/50)*50, r5 = n => Math.round(n/5)*5;
 const milhar = n => String(n).replace(/\B(?=(\d{3})+$)/g, ".");
-const virg = n => String(n).replace(".", ",");
-function metas(t){
-  const x = TIPOS[t], g = k => Math.round(x[k]*ATUAL.peso);
-  return {prot:g("prot"), carb:g("carb"), gord:g("gord"), kcal:r50(g("prot")*4 + g("carb")*4 + g("gord")*9)};
-}
-/* fora das 12 semanas é dia leve; na semana de descarga, terça e quinta viram dia moderado */
-function tipoDoDia(d){
-  const w = semanaDoPlano(d), t = DIA_TIPO[dow(d)];
-  if (w === null) return "leve";
-  return t === "duro" && SEM[w].deload ? "moderado" : t;
-}
-let nt = tipoDoDia(hoje0());
-$("ntabs").innerHTML = Object.keys(TIPOS).map(t=>`<button type="button" data-t="${t}" aria-pressed="false">${TIPOS[t].nome.replace("Dia ","").replace("do ","")}</button>`).join("");
-$("ntabs").addEventListener("click", e=>{ const b = e.target.closest("button[data-t]"); if(!b) return; nt = b.dataset.t; renderNutri(); });
-$("ntreino").innerHTML = NO_TREINO.map(r=>`<tr><td class="num">${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join("");
-{
-  const gord = Math.round(ATUAL.peso*ATUAL.pgc/100), magra = ATUAL.peso - gord, alvoPeso = magra + 0.5 + gord - 4;
-  $("ninbody").innerHTML = `<div class="tbl"><table>
-    <thead><tr><th></th><th>Peso</th><th>Gordura</th><th>Músculo*</th></tr></thead><tbody>${[
-      [`<b>Hoje</b> <span class="muted small">(${ATUAL.fonte})</span>`, ATUAL.peso, `~${ATUAL.pgc}% · ${gord} kg`, "abaixo de 35 kg"],
-      [`InBody ${INBODY.data}`, INBODY.peso, `${virg(INBODY.pgc)}% · ${virg(INBODY.gordura)} kg`, `${virg(INBODY.mme)} kg`],
-      [`Melhor marca (${MELHOR.data})`, MELHOR.peso, `${virg(MELHOR.pgc)}%`, `${virg(MELHOR.mme)} kg`],
-      [`<b>Meta da semana 12</b>`, `~${Math.round(alvoPeso)}`, `~${Math.round((gord-4)/alvoPeso*100)}% · ${gord-4} kg`, "voltar pra 35"]
-    ].map(r=>`<tr><td>${r[0]}</td><td class="num">${typeof r[1]==="number"?virg(r[1]):r[1]} kg</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td></tr>`).join("")}</tbody></table></div>
-    <p class="muted small">* Massa muscular esquelética. "Hoje" é estimativa: o condicionamento caiu desde o último exame.</p>
-    <p>O peso é o mesmo de 2025, mas com mais gordura: o que saiu foi músculo e condicionamento. A boa notícia é que <b>músculo que já existiu volta rápido</b> com treino de força e proteína em dia.</p>
-    <p>Meta realista pras 12 semanas: <b>uns −4 kg de gordura</b> (0,3 kg por semana) sem perder massa magra. Os 13% da melhor fase ficam pro ciclo seguinte.</p>
-    <p class="muted">Faz um InBody na semana 1 <span class="conferir">[CONFERIR]</span> pra trocar a estimativa por número real, e outro na semana 12. Com o exame novo, os alvos da aba se ajustam ao peso dele.</p>`;
+const virg = (n, c=1) => String(+n.toFixed(c)).replace(".", ",");
+const MAGRA = ATUAL.peso*(1-ATUAL.pgc/100);
+const TMB = 370 + 21.6*MAGRA; // fórmula da própria InBody (dá 1.706 com a massa magra de ago/25, igual ao exame)
+
+/* gasto e metas de uma data: o treino vem das sessões daquela semana do plano */
+function nutriDia(dt){
+  /* antes de 12/10 a grade já vale: estima com os treinos da semana 1. Depois do ciclo, dia leve. */
+  const pre = dt < START, w = pre ? 0 : semanaDoPlano(dt), d = dow(dt), tipo = w === null ? "leve" : DIA_TIPO[d];
+  let treino = 0, bikeMin = 0;
+  if (w !== null){
+    sessoesDoDia(w, d).forEach(({s,k})=>{
+      if (k === "bike" || k === "run"){ s.seg.forEach(([t,z])=>{ treino += t*GASTO[k][z]; }); if (k === "bike") bikeMin = totMin(s.seg); }
+      else if (k === "gym" && s.letra !== "E") treino += parseInt(GYM_META[s.letra].dur.replace(/\D/g,""),10)*GASTO.gym*(SEM[w].deload ? 0.6 : 1);
+    });
+    if (d === 1 || d === 3) treino += GASTO.idaVolta*GASTO.bike[1];
+  }
+  const base = TMB*GASTO.fator, gasto = base + treino;
+  const kcal = r50(Math.max(GASTO.piso, gasto - TIPOS[tipo].deficit + ATUAL.ajuste));
+  const prot = Math.round(PROT*ATUAL.peso), gord = Math.round(GORD*ATUAL.peso);
+  const carb = Math.round((kcal - prot*4 - gord*9)/4);
+  const taxa = bikeMin ? NA_BIKE.find(r=>bikeMin<=r[0])[1] : 0;
+  const pedal = taxa ? r5(taxa*(bikeMin - 30)/60) : 0;
+  return {pre, tipo, refs: REFEICOES[tipo], base:r50(base), treino:r50(treino), gasto:r50(gasto), kcal, prot, carb, gord, bikeMin, taxa, pedal};
 }
 
+/* lista de refeições com gramas de proteína e carboidrato de cada uma */
+function refeicoesHTML(n){
+  return n.refs.map(([h,nome,txt,p,parte])=>{
+    if (h === "Na bike"){
+      const t = n.bikeMin ? fmtDur(n.bikeMin) : "";
+      txt = n.pedal ? `${t} de pedal: ~${n.pedal} g de carboidrato (${n.taxa} g por hora depois dos primeiros 30'), 500–750 ml de água por hora. Vai por fora da meta do dia.`
+                    : `${t} de pedal: só água.`;
+      return `<li class="pre"><span class="h">${h}</span><div><div class="t">${esc(nome)}</div><div class="n">${esc(txt)}</div></div></li>`;
+    }
+    const pg = r5(p*n.prot/150), cg = r5(n.carb*parte);
+    return `<li><span class="h">${h}</span><div><div class="t">${esc(nome)}</div><div class="g mono">${pg?`${pg} g prot`:""}${pg&&cg?" · ":""}${cg?`${cg} g carbo`:""}</div><div class="n">${esc(txt)}</div></div></li>`;
+  }).join("");
+}
+
+/* semana mostrada na aba: -1 = a semana antes do plano começar */
+const nwkMin = hoje0() < START ? -1 : 0;
+let nwk = semanaDoPlano(hoje0()), nd = dow(hoje0());
+if (nwk === null) nwk = hoje0() < START ? -1 : SEM.length-1;
+$("ndias").innerHTML = DIAS.map((d,i)=>`<button type="button" data-d="${i}">${d}</button>`).join("");
+$("ndias").addEventListener("click", e=>{ const x = e.target.closest("button[data-d]"); if(!x) return; nd = +x.dataset.d; renderNutri(); });
+$("nsemana").addEventListener("click", e=>{ const x = e.target.closest("tr[data-d]"); if(!x) return; nd = +x.dataset.d; renderNutri(); document.querySelector("main").scrollTop = 0; });
+$("nwk-ant").onclick = ()=>{ if (nwk > nwkMin){ nwk--; renderNutri(); } };
+$("nwk-prox").onclick = ()=>{ if (nwk < SEM.length-1){ nwk++; renderNutri(); } };
+$("ntrocac").innerHTML = TROCAS_CARB.map(r=>`<tr><td>${esc(r[0])}</td><td class="num">${esc(r[1])}</td></tr>`).join("");
+$("ntrocap").innerHTML = TROCAS_PROT.map(r=>`<tr><td>${esc(r[0])}</td><td class="num">${esc(r[1])}</td></tr>`).join("");
+{
+  const gord = ATUAL.peso - MAGRA, g12 = gord - 3.5, m12 = MAGRA + 1.5, p12 = g12 + m12;
+  $("ninbody").innerHTML = `<div class="tbl"><table>
+    <thead><tr><th></th><th>Peso</th><th>Gordura</th><th>Massa magra</th></tr></thead><tbody>
+    ${HIST.map(h=>`<tr><td>InBody ${h.quando}</td><td class="num">${h.peso} kg</td><td class="num">${h.pgc} · ${h.gord} kg</td><td class="num">${h.magra} kg</td></tr>`).join("")}
+    <tr><td><b>Hoje</b> <span class="muted small">(${esc(ATUAL.fonte)})</span></td><td class="num">${virg(ATUAL.peso)} kg</td><td class="num">~${ATUAL.pgc}% · ${virg(gord)} kg</td><td class="num">~${virg(MAGRA)} kg</td></tr>
+    <tr><td><b>Meta da semana 12</b></td><td class="num">~${virg(p12)} kg</td><td class="num">~${Math.round(g12/p12*100)}% · ${virg(g12)} kg</td><td class="num">~${virg(m12)} kg</td></tr>
+    <tr><td><b>Depois: a melhor fase</b></td><td class="num">~72,5 kg</td><td class="num">~13% · 9,5 kg</td><td class="num">~63 kg</td></tr>
+    </tbody></table></div>
+    <p>Com 1,75 m e 75 kg o IMC dá 24,5, normal; o que mudou foi a composição. O peso é o de 2023, mas hoje tem <b>uns 5 kg a mais de gordura e 3–4 kg a menos de massa magra</b>. Por isso a meta não é emagrecer: é <b>recompor</b>, perder gordura e recuperar músculo ao mesmo tempo.</p>
+    <p>Massa magra de ~${virg(MAGRA,0)} kg dá um metabolismo de repouso de <b>~${milhar(r50(TMB))} kcal</b> (a mesma fórmula do InBody, que deu 1.706 em ago/25). As metas da aba partem daí, mais o gasto de cada treino.</p>
+    <p>Meta das 12 semanas: <b>−3,5 kg de gordura e +1,5 kg de massa magra</b>, com déficit médio de ~300 kcal por dia e 2 g de proteína por kg. Músculo que já existiu volta mais rápido: a balança cai pouco, a cintura cai mais.</p>
+    <p class="muted">Faz um InBody na semana 1 <span class="conferir">[CONFERIR]</span> e troca peso e % no dados.js: tudo se recalcula. Outro na semana 12 pra medir o ciclo.</p>`;
+}
+
+function metasHTML(n){
+  return [["Energia", milhar(n.kcal), "kcal"],["Proteína", n.prot, "g"],["Carboidrato", n.carb, "g"],["Gordura", n.gord, "g"]]
+    .map(([t,v,u])=>`<div><span class="eyebrow">${t}</span><b class="mono">${v}<small> ${u}</small></b></div>`).join("");
+}
 function renderNutri(){
-  document.querySelectorAll("#ntabs button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.t===nt)));
-  const x = TIPOS[nt], m = metas(nt);
+  const ini = addDays(START, nwk*7), dt = addDays(ini, nd), hj = hoje0(), n = nutriDia(dt), x = TIPOS[n.tipo];
+  $("nwk").innerHTML = `<b>${nwk < 0 ? "Antes do plano" : `Semana ${nwk+1}${SEM[nwk].deload?" · descarga":""}`}</b><span class="mono muted small">${ddmm(ini)} → ${ddmm(addDays(ini,6))}</span>`;
+  $("nwk-ant").disabled = nwk <= nwkMin; $("nwk-prox").disabled = nwk >= SEM.length-1;
+  document.querySelectorAll("#ndias button").forEach(b=>{ const i = +b.dataset.d; b.setAttribute("aria-pressed", String(i===nd)); b.classList.toggle("today", +addDays(ini,i)===+hj); });
+  $("ndia").innerHTML = `<span class="eyebrow">${DIAS_LONGO[nd]}, ${ddmm(dt)}${+dt===+hj?" · hoje":""}</span><b>${x.nome}</b>`;
   $("nmetas").className = `metas ${x.cls}`;
-  $("nmetas").innerHTML = [["Energia", milhar(m.kcal), "kcal"],["Proteína", m.prot, "g"],["Carboidrato", m.carb, "g"],["Gordura", m.gord, "g"]]
-    .map(([n,v,u])=>`<div><span class="eyebrow">${n}</span><b class="mono">${v}<small> ${u}</small></b></div>`).join("");
+  $("nmetas").innerHTML = metasHTML(n);
+  $("ngasto").textContent = `Gasto estimado ${milhar(n.gasto)} kcal = ${milhar(n.base)} do dia a dia + ${milhar(n.treino)} de treino${n.pre ? " (treinos da semana 1)" : ""}. Meta: ${milhar(n.gasto - n.kcal)} abaixo.`;
   $("nnota").textContent = x.nota;
-  $("nrefs").innerHTML = REFEICOES[nt].map(r=>`<li class="${r[3]?"":"pre"}"><span class="h">${esc(r[0])}</span><div><div class="t">${esc(r[1])}${r[3]?` <span class="mono muted small">· ~${r[3]} g prot.</span>`:""}</div><div class="n">${esc(r[2])}</div></div></li>`).join("");
-  /* semana do plano em curso (antes de 12/10, a semana 1) */
-  const ini = addDays(START, wkAtual()*7), hj = hoje0();
-  $("nsemana").innerHTML = DIAS.map((dn,i)=>{ const dt = addDays(ini,i), t = tipoDoDia(dt), mm = metas(t);
-    return `<tr class="${TIPOS[t].cls}${+dt===+hj?" hj":""}"><td><b>${dn}</b></td><td><i class="nd"></i>${TIPOS[t].nome.replace("Dia ","")}</td><td class="num">${milhar(mm.kcal)}</td><td class="num">${mm.carb} g</td></tr>`; }).join("");
+  $("nrefs").innerHTML = refeicoesHTML(n);
+  let sg = 0, sk = 0;
+  $("nsemana").innerHTML = DIAS.map((dn,i)=>{ const d2 = addDays(ini,i), m = nutriDia(d2); sg += m.gasto; sk += m.kcal;
+    return `<tr data-d="${i}" class="${TIPOS[m.tipo].cls}${i===nd?" sel":""}${+d2===+hj?" hj":""}"><td><b>${dn}</b></td><td><i class="nd"></i>${TIPOS[m.tipo].nome.replace("Dia do ","").replace("Dia ","").replace("Véspera do longo","véspera")}</td><td class="num">${milhar(m.gasto)}</td><td class="num">${milhar(m.kcal)}</td><td class="num">${m.carb} g</td></tr>`; }).join("");
+  const def = Math.round((sg - sk)/7);
+  $("nsemres").textContent = `Média da semana: ~${def} kcal abaixo do gasto por dia, uns ${virg(def*7/7700,2)} kg de gordura. Toque num dia pra ver as refeições dele.`;
 }
 
 /* ================= GRADE ================= */
@@ -273,7 +317,6 @@ function abrir(v){
 /* o Safari do iPhone ignora user-scalable=no: bloqueia a pinça na mão */
 ["gesturestart","gesturechange"].forEach(ev=>document.addEventListener(ev, e=>e.preventDefault(), {passive:false}));
 $("tabbar").addEventListener("click", e=>{ const b = e.target.closest("button[data-v]"); if (b) abrir(b.dataset.v); });
-$("hoje-nutri").onclick = e=>{ nt = e.currentTarget.dataset.t; abrir("nutri"); };
 abrir(RENDER[location.hash.slice(1)] ? location.hash.slice(1) : "hoje"); // link com #treinos abre direto na aba
 
 /* atualiza "agora" a cada minuto e quando o app volta pra frente */

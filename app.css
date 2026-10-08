@@ -209,6 +209,18 @@ td.num{white-space:nowrap}
 #nsemana tr.hj td{background:color-mix(in srgb,var(--now) 8%,var(--surface))}
 #nsemana tr.hj b{color:var(--now)}
 #ninbody{display:flex;flex-direction:column;gap:10px;font-size:.92rem}
-.ncomer{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;width:100%;cursor:pointer;
-  background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;padding:10px 14px;font-size:.95rem}
-.ncomer::after{content:"Ver refeições ›";font-size:.8rem;font-weight:600;color:var(--accent);margin-top:2px}
+#v-hoje>.ncomer{border-left:4px solid var(--c)}
+.ncomer .ft{gap:2px;font-size:.95rem}
+.ncomer .tl{margin-top:10px}
+.lnk{align-self:flex-start;border:0;background:none;padding:10px 0 2px;font-size:.88rem;font-weight:600;color:var(--accent);cursor:pointer}
+.tl .g{font-size:.8rem;color:var(--ink);margin:1px 0}
+.n-vesp{--c:var(--c-plano)}
+.nwk{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px}
+.ibtn[disabled]{opacity:.35}
+.ndia{display:flex;flex-direction:column;gap:2px}
+.ndia b{font-size:1.25rem}
+#ndias button.today{color:var(--now)}
+#ndias button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+#nsemana tr{cursor:pointer}
+#nsemana tr.sel td{background:var(--sunk)}
+#ninbody p{font-size:.92rem}
