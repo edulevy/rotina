@@ -9,6 +9,8 @@ Online em https://edulevy.github.io/rotina/ · código em `edulevy/rotina` (púb
 
 | Data | O quê |
 |---|---|
+| 09/10/2026 | Teste de subida (semanas 2 e 12) no Joá saindo da Barrinha: a ida de casa é o aquecimento (sem tempo, termina no LAP), subida de ~11–12', volta soltando. App e Garmin atualizados |
+| 09/10/2026 | Acompanhamento feito x plano no PC (ver `backup-levy/garmin`): pedir "como foi minha semana" |
 | 09/10/2026 | Login do Garmin feito e os 76 treinos da semana nova enviados pro relógio |
 | 09/10/2026 | Nutrição: dias e tipos de dia (leve, moderado, duro, véspera, longo) fixos no topo; tocar num tipo mostra a alimentação dele |
 | 08/10/2026 | Semana nova: corrida 2 na sexta, pedal Z2 no sábado, longão no domingo (app, grade e nutrição) |

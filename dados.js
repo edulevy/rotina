@@ -17,12 +17,12 @@ const B = (nome, seg, passos, obs) => ({tipo:"bike", nome, seg, passos, obs});
 const R = (nome, seg, passos, obs) => ({tipo:"run", nome, seg, passos, obs});
 
 const testeSubida = (re) => B(re ? "Reteste de subida" : "Teste de subida",
-  P([20,2],[20,4],[15,1]),
-  ["20' Z2 até a base da subida, com 3× 30\" fortes no caminho",
-   "Subida inteira no máximo que dá pra sustentar até o topo (ritmo constante, sem estourar no começo)",
-   "Anota: tempo, FC média, FC máx e condições (vento, chão molhado, calor)",
-   "Desce e solta 10–15' em Z1"],
-  re ? "Mesma subida, mesmo horário da semana 2. Compara tempo e FC média." : "Escolhe uma subida que dê pra repetir na semana 12 (ex.: Vista Chinesa ou Canoa). Esta é a régua do ciclo.");
+  P([15,1],[12,4],[15,1]),
+  ["Sai de casa em Z1–Z2 até o pé do Joá, na Barrinha (~7 km, 12–19'), sem olhar tempo. Nos últimos minutos, 2 acelerações de 20\". Aperta LAP no pé da subida",
+   "Joá inteiro (3,2 km, +116 m) no máximo que dá pra sustentar até o topo: ritmo constante, sem estourar no começo. Aperta LAP no topo",
+   "Anota: tempo, FC média, FC máx e condições (vento, chão molhado, calor). Teu melhor no Joá: 10:59 (29/04/2026); o normal é 11–12' com FC 145–150",
+   "Volta pra casa soltando em Z1"],
+  re ? "Joá saindo da Barrinha, mesmo horário da semana 2. Compara tempo e FC média." : "Subida do Joá saindo da Barrinha: a ida já é o aquecimento e dá pra repetir igual na semana 12. Esta é a régua do ciclo.");
 
 const longo = (h, seg, extra, obs) => B("Longo " + h, seg,
   ["Começa 15' bem leve (Z1)"].concat(extra, ["Comer a partir de 1h: 30–60 g de carboidrato por hora"]), obs);
