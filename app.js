@@ -74,7 +74,8 @@ function card({s,k,lbl,key}, wk, aba, abrir){
     `${profileHTML(s.seg)}
     <ol class="steps">${s.passos.map(p=>`<li>${esc(p)}</li>`).join("")}</ol>
     ${s.obs?`<p class="obs">${esc(s.obs)}</p>`:""}
-    <span class="garmin">No relógio: ${esc(nomeGarmin(wk,s))}</span>`)}${check}</div>`;
+    <span class="garmin">No relógio: ${esc(nomeGarmin(wk,s))}</span>
+    <span class="garmin">${/LAP/.test(s.passos.join(" ")) ? "⚠ Precisa apertar LAP (no pé e no alto da subida)" : "Automático: não precisa de LAP, o relógio apita sozinho"}</span>`)}${check}</div>`;
 }
 
 /* marcar "feito" em qualquer aba */
