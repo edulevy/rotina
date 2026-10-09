@@ -3,12 +3,13 @@
 App de celular pessoal (PWA) com o plano de treino de 12 semanas, academia, nutrição e a grade da semana.
 Online em https://edulevy.github.io/rotina/ · código em `edulevy/rotina` (público).
 
-**Próximo passo:** fazer o login do Garmin neste PC (comando no roadmap do Garmin) pra os 76 treinos da semana nova chegarem no relógio.
+**Próximo passo:** sincronizar o relógio pelo app Garmin Connect; depois, InBody na semana 1 (12 a 18/10) e trocar `ATUAL` no `dados.js`.
 
 ## Feito
 
 | Data | O quê |
 |---|---|
+| 09/10/2026 | Login do Garmin feito e os 76 treinos da semana nova enviados pro relógio |
 | 09/10/2026 | Nutrição: dias e tipos de dia (leve, moderado, duro, véspera, longo) fixos no topo; tocar num tipo mostra a alimentação dele |
 | 08/10/2026 | Semana nova: corrida 2 na sexta, pedal Z2 no sábado, longão no domingo (app, grade e nutrição) |
 | 08/10/2026 | Nutrição calculada pelo treino de cada dia, trocas de alimentos, card "Comer hoje" que abre as refeições |
@@ -20,7 +21,6 @@ Online em https://edulevy.github.io/rotina/ · código em `edulevy/rotina` (púb
 
 ## Por fazer
 
-- [ ] Garmin: login neste PC e reenviar os treinos (ver `backup-levy/garmin/ROADMAP.md`)
 - [ ] InBody na semana 1 (12 a 18/10) e trocar `ATUAL` (peso e %) no `dados.js`
 - [ ] Registrar o peso semanal no app
 - [ ] Refeições no modo "com trabalho à tarde"
