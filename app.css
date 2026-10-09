@@ -219,8 +219,16 @@ td.num{white-space:nowrap}
 .ibtn[disabled]{opacity:.35}
 .ndia{display:flex;flex-direction:column;gap:2px}
 .ndia b{font-size:1.25rem}
+/* dias e tipos de dia: fixos no topo da aba enquanto rola */
+.nfixo{position:sticky;top:-16px;z-index:5;margin:-16px -16px 0;padding:10px 16px 8px;background:var(--bg);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+#ndias button{height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border-bottom:3px solid var(--c)}
+#ndias button small{font-family:var(--f-body);font-size:.62rem;font-weight:500;color:var(--muted)}
 #ndias button.today{color:var(--now)}
-#ndias button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+#ndias button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);border-bottom-color:var(--c)}
+#ndias button[aria-pressed="true"] small{color:var(--bg)}
+.ntipos{display:flex;gap:4px;overflow-x:auto}
+.ntipos button{flex:1;min-width:58px;height:32px;padding:0 6px;border:1px solid var(--line);border-left:4px solid var(--c);background:var(--surface);border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.ntipos button[aria-pressed="true"]{background:color-mix(in srgb,var(--c) 22%,var(--surface));border-color:var(--c)}
 #nsemana tr{cursor:pointer}
 #nsemana tr.sel td{background:var(--sunk)}
 #ninbody p{font-size:.92rem}

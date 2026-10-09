@@ -382,15 +382,15 @@ const GASTO = {
 /* tipo de dia: pelo dia da semana dentro do plano. O déficit muda com o tipo;
    o tamanho do treino (e com ele o carboidrato) vem dos minutos daquela semana. */
 const TIPOS = {
-  leve:    {nome:"Dia leve", deficit:450, cls:"n-leve",
+  leve:    {nome:"Dia leve", curto:"Leve", deficit:450, cls:"n-leve",
             nota:"Sem treino. É o dia de maior déficit: o carboidrato cai, a proteína fica igual."},
-  moderado:{nome:"Dia moderado", deficit:350, cls:"n-mod",
+  moderado:{nome:"Dia moderado", curto:"Moderado", deficit:350, cls:"n-mod",
             nota:"Corrida + academia à noite. O lanche das 17h segura o treino; o jantar recupera."},
-  duro:    {nome:"Dia duro", deficit:250, cls:"n-duro",
+  duro:    {nome:"Dia duro", curto:"Duro", deficit:250, cls:"n-duro",
             nota:"Pedal de manhã e academia à noite. Dois treinos: carboidrato antes e depois de cada um."},
-  vespera: {nome:"Véspera do longo", deficit:150, cls:"n-vesp",
+  vespera: {nome:"Véspera do longo", curto:"Véspera", deficit:150, cls:"n-vesp",
             nota:"Pedal Z2 de manhã e longo amanhã às 05h15. Quase sem déficit, com o carboidrato pesando no jantar."},
-  longo:   {nome:"Dia do longo", deficit:150, cls:"n-longo",
+  longo:   {nome:"Dia do longo", curto:"Longo", deficit:150, cls:"n-longo",
             nota:"O carboidrato do pedal vem por fora da meta. Depois de chegar, recuperação de verdade."}
 };
 const DIA_TIPO = ["moderado","duro","moderado","duro","moderado","vespera","longo"]; // seg → dom (sáb = Z2 + véspera do longo)

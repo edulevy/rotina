@@ -116,7 +116,7 @@ function renderHoje(){
   $("hoje-nutri").className = `fold ncomer ${TIPOS[n.tipo].cls}`;
   $("hoje-nutri-res").innerHTML = `<span class="eyebrow">Comer ${rel ? rel.toLowerCase() : "no dia"} · ${TIPOS[n.tipo].nome}</span><span><b class="mono">${milhar(n.kcal)} kcal</b> · ${n.prot} g proteína · ${n.carb} g carbo</span>`;
   $("hoje-refs").innerHTML = refeicoesHTML(n);
-  $("hoje-nutri-ir").onclick = ()=>{ nwk = wk === null ? (dia < START ? -1 : SEM.length-1) : wk; nd = d; abrir("nutri"); };
+  $("hoje-nutri-ir").onclick = ()=>{ nwk = wk === null ? (dia < START ? -1 : SEM.length-1) : wk; nd = d; ntipo = null; abrir("nutri"); };
 
   $("hoje-treinos").innerHTML = wk === null
     ? `<p class="empty">Sem treino do plano neste dia.</p>`
@@ -182,11 +182,12 @@ const MAGRA = ATUAL.peso*(1-ATUAL.pgc/100);
 const TMB = 370 + 21.6*MAGRA; // fórmula da própria InBody (dá 1.706 com a massa magra de ago/25, igual ao exame)
 
 /* gasto e metas de uma data: o treino vem das sessões daquela semana do plano */
-function nutriDia(dt){
-  /* antes de 12/10 a grade já vale: estima com os treinos da semana 1. Depois do ciclo, dia leve. */
-  const pre = dt < START, w = pre ? 0 : semanaDoPlano(dt), d = dow(dt), tipo = w === null ? "leve" : DIA_TIPO[d];
+function nutriDia(dt, semTreino){
+  /* antes de 12/10 a grade já vale: estima com os treinos da semana 1. Depois do ciclo, dia leve.
+     semTreino: o modelo do dia leve (nenhum dia do plano é leve, então sai sem treino). */
+  const pre = dt < START, w = pre ? 0 : semanaDoPlano(dt), d = dow(dt), tipo = w === null || semTreino ? "leve" : DIA_TIPO[d];
   let treino = 0, bikeMin = 0;
-  if (w !== null){
+  if (w !== null && !semTreino){
     sessoesDoDia(w, d).forEach(({s,k})=>{
       if (k === "bike" || k === "run"){ s.seg.forEach(([t,z])=>{ treino += t*GASTO[k][z]; }); if (k === "bike") bikeMin = totMin(s.seg); }
       else if (k === "gym" && s.letra !== "E") treino += parseInt(GYM_META[s.letra].dur.replace(/\D/g,""),10)*GASTO.gym*(SEM[w].deload ? 0.6 : 1);
@@ -218,11 +219,13 @@ function refeicoesHTML(n){
 
 /* semana mostrada na aba: -1 = a semana antes do plano começar */
 const nwkMin = hoje0() < START ? -1 : 0;
-let nwk = semanaDoPlano(hoje0()), nd = dow(hoje0());
+let nwk = semanaDoPlano(hoje0()), nd = dow(hoje0()), ntipo = null; // ntipo: tipo escolhido nos cards de cima (null = o do dia)
 if (nwk === null) nwk = hoje0() < START ? -1 : SEM.length-1;
-$("ndias").innerHTML = DIAS.map((d,i)=>`<button type="button" data-d="${i}">${d}</button>`).join("");
-$("ndias").addEventListener("click", e=>{ const x = e.target.closest("button[data-d]"); if(!x) return; nd = +x.dataset.d; renderNutri(); });
-$("nsemana").addEventListener("click", e=>{ const x = e.target.closest("tr[data-d]"); if(!x) return; nd = +x.dataset.d; renderNutri(); document.querySelector("main").scrollTop = 0; });
+$("ndias").innerHTML = DIAS.map((d,i)=>`<button type="button" data-d="${i}"><span>${d}</span><small></small></button>`).join("");
+$("ntipos").innerHTML = Object.entries(TIPOS).map(([k,t])=>`<button type="button" class="${t.cls}" data-t="${k}">${t.curto}</button>`).join("");
+$("ndias").addEventListener("click", e=>{ const x = e.target.closest("button[data-d]"); if(!x) return; nd = +x.dataset.d; ntipo = null; renderNutri(); });
+$("ntipos").addEventListener("click", e=>{ const x = e.target.closest("button[data-t]"); if(!x) return; ntipo = x.dataset.t; renderNutri(); });
+$("nsemana").addEventListener("click", e=>{ const x = e.target.closest("tr[data-d]"); if(!x) return; nd = +x.dataset.d; ntipo = null; renderNutri(); document.querySelector("main").scrollTop = 0; });
 $("nwk-ant").onclick = ()=>{ if (nwk > nwkMin){ nwk--; renderNutri(); } };
 $("nwk-prox").onclick = ()=>{ if (nwk < SEM.length-1){ nwk++; renderNutri(); } };
 $("ntrocac").innerHTML = TROCAS_CARB.map(r=>`<tr><td>${esc(r[0])}</td><td class="num">${esc(r[1])}</td></tr>`).join("");
@@ -247,11 +250,20 @@ function metasHTML(n){
     .map(([t,v,u])=>`<div><span class="eyebrow">${t}</span><b class="mono">${v}<small> ${u}</small></b></div>`).join("");
 }
 function renderNutri(){
-  const ini = addDays(START, nwk*7), dt = addDays(ini, nd), hj = hoje0(), n = nutriDia(dt), x = TIPOS[n.tipo];
+  const ini = addDays(START, nwk*7), hj = hoje0();
+  /* tipo escolhido no card: mostra o primeiro dia desta semana com esse tipo (o leve sai sem treino) */
+  const dm = ntipo && ntipo !== "leve" ? DIA_TIPO.indexOf(ntipo) : nd;
+  if (ntipo && ntipo !== "leve" && dm === nd) ntipo = null;
+  const dt = addDays(ini, dm), n = nutriDia(dt, ntipo === "leve"), x = TIPOS[n.tipo];
   $("nwk").innerHTML = `<b>${nwk < 0 ? "Antes do plano" : `Semana ${nwk+1}${SEM[nwk].deload?" · descarga":""}`}</b><span class="mono muted small">${ddmm(ini)} → ${ddmm(addDays(ini,6))}</span>`;
   $("nwk-ant").disabled = nwk <= nwkMin; $("nwk-prox").disabled = nwk >= SEM.length-1;
-  document.querySelectorAll("#ndias button").forEach(b=>{ const i = +b.dataset.d; b.setAttribute("aria-pressed", String(i===nd)); b.classList.toggle("today", +addDays(ini,i)===+hj); });
-  $("ndia").innerHTML = `<span class="eyebrow">${DIAS_LONGO[nd]}, ${ddmm(dt)}${+dt===+hj?" · hoje":""}</span><b>${x.nome}</b>`;
+  document.querySelectorAll("#ndias button").forEach(b=>{ const i = +b.dataset.d, t = TIPOS[nutriDia(addDays(ini,i)).tipo];
+    b.className = t.cls + (+addDays(ini,i)===+hj ? " today" : ""); b.querySelector("small").textContent = t.curto;
+    b.setAttribute("aria-pressed", String(!ntipo && i===nd)); });
+  document.querySelectorAll("#ntipos button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.t===n.tipo)));
+  $("ndia").innerHTML = ntipo
+    ? `<span class="eyebrow">Modelo · ${ntipo === "leve" ? "dia sem treino" : `como ${DIAS_LONGO[dm].toLowerCase()}, ${ddmm(dt)}`}</span><b>${x.nome}</b>`
+    : `<span class="eyebrow">${DIAS_LONGO[nd]}, ${ddmm(dt)}${+dt===+hj?" · hoje":""}</span><b>${x.nome}</b>`;
   $("nmetas").className = `metas ${x.cls}`;
   $("nmetas").innerHTML = metasHTML(n);
   $("ngasto").textContent = `Gasto estimado ${milhar(n.gasto)} kcal = ${milhar(n.base)} do dia a dia + ${milhar(n.treino)} de treino${n.pre ? " (treinos da semana 1)" : ""}. Meta: ${milhar(n.gasto - n.kcal)} abaixo.`;
@@ -259,7 +271,7 @@ function renderNutri(){
   $("nrefs").innerHTML = refeicoesHTML(n);
   let sg = 0, sk = 0;
   $("nsemana").innerHTML = DIAS.map((dn,i)=>{ const d2 = addDays(ini,i), m = nutriDia(d2); sg += m.gasto; sk += m.kcal;
-    return `<tr data-d="${i}" class="${TIPOS[m.tipo].cls}${i===nd?" sel":""}${+d2===+hj?" hj":""}"><td><b>${dn}</b></td><td><i class="nd"></i>${TIPOS[m.tipo].nome.replace("Dia do ","").replace("Dia ","").replace("Véspera do longo","véspera")}</td><td class="num">${milhar(m.gasto)}</td><td class="num">${milhar(m.kcal)}</td><td class="num">${m.carb} g</td></tr>`; }).join("");
+    return `<tr data-d="${i}" class="${TIPOS[m.tipo].cls}${!ntipo&&i===nd?" sel":""}${+d2===+hj?" hj":""}"><td><b>${dn}</b></td><td><i class="nd"></i>${TIPOS[m.tipo].nome.replace("Dia do ","").replace("Dia ","").replace("Véspera do longo","véspera")}</td><td class="num">${milhar(m.gasto)}</td><td class="num">${milhar(m.kcal)}</td><td class="num">${m.carb} g</td></tr>`; }).join("");
   const def = Math.round((sg - sk)/7);
   $("nsemres").textContent = `Média da semana: ~${def} kcal abaixo do gasto por dia, uns ${virg(def*7/7700,2)} kg de gordura. Toque num dia pra ver as refeições dele.`;
 }

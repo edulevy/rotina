@@ -9,6 +9,7 @@ Online em https://edulevy.github.io/rotina/ · código em `edulevy/rotina` (púb
 
 | Data | O quê |
 |---|---|
+| 09/10/2026 | Nutrição: dias e tipos de dia (leve, moderado, duro, véspera, longo) fixos no topo; tocar num tipo mostra a alimentação dele |
 | 08/10/2026 | Semana nova: corrida 2 na sexta, pedal Z2 no sábado, longão no domingo (app, grade e nutrição) |
 | 08/10/2026 | Nutrição calculada pelo treino de cada dia, trocas de alimentos, card "Comer hoje" que abre as refeições |
 | 08/10/2026 | Agenda do Hoje só com os treinos |
