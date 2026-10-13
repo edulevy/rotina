@@ -1,6 +1,6 @@
 (function(){
 "use strict";
-const {START, FERIADOS, BLOCOS, SEM, GYM, GYM_META} = window.PLANO;
+const {START, FERIADOS, BLOCOS, SEM, GYM, GYM_META, AJUSTES} = window.PLANO;
 const {CAT, ORDEM, semana} = window.GRADE;
 
 /* ---------- utilidades ---------- */
@@ -30,19 +30,17 @@ function semanaDoPlano(d){
 }
 
 /* ---------- sessões de um dia do plano ---------- */
+/* seg corrida 1 · ter pedal · qua só academia · qui pedal · sex corrida 2 · sáb Z2 · dom longo (w.sex = pedal de quinta) */
+const PADRAO = [["r1","B"],["ter","A"],["D"],["sex","C"],["r2","E"],["sz2"],["sab","r3"]];
+const ajusteDe = (wk, d) => AJUSTES[iso(addDays(START, wk*7+d))];
 function sessoesDoDia(wk, d){
-  const w = SEM[wk], bl = w.bloco;
-  /* seg corrida 1 · ter pedal · qua só academia · qui pedal · sex corrida 2 · sáb Z2 · dom longo (w.sex = pedal de quinta) */
-  const plan = [
-    [[w.r1,"run","Corrida 1 · 18h"],[{letra:"B",bloco:bl},"gym"]],
-    [[w.ter,"bike","Pedal 05h15"],[{letra:"A",bloco:bl},"gym"]],
-    [[{letra:"D",bloco:bl},"gym"]],
-    [[w.sex,"bike","Pedal 05h15"],[{letra:"C",bloco:bl},"gym"]],
-    [[w.r2,"run","Corrida 2 · 18h"],[{letra:"E",bloco:bl},"gym"]],
-    [[w.sz2,"bike","Pedal Z2 05h15"]],
-    [[w.sab,"bike","Pedal longo 05h15"]].concat(w.r3?[[w.r3,"run","Corrida 3 · transição"]]:[])
-  ];
-  return plan[d].map(([s,k,lbl],j)=>({s, k, lbl, key:`plano26:s${wk}d${d}i${j}`}));
+  const w = SEM[wk], bl = w.bloco, aj = ajusteDe(wk, d);
+  const S = {r1:[w.r1,"run","Corrida 1 · 18h"], ter:[w.ter,"bike","Pedal 05h15"], sex:[w.sex,"bike","Pedal 05h15"], r2:[w.r2,"run","Corrida 2 · 18h"],
+             sz2:[w.sz2,"bike","Pedal Z2 05h15"], sab:[w.sab,"bike","Pedal longo 05h15"], r3:[w.r3,"run","Corrida 3 · transição"]};
+  "ABCDE".split("").forEach(L=>{ S[L] = [{letra:L,bloco:bl},"gym"]; });
+  /* dia ajustado: a marca de feito vai pelo treino, não pela posição (senão herdaria a do treino que saiu) */
+  return (aj ? aj.itens : PADRAO[d]).filter(id=>S[id][0]).map((id,j)=>{ const [s,k,lbl] = S[id];
+    return {s, k, lbl, id, key: aj ? `plano26:s${wk}d${d}:${id}` : `plano26:s${wk}d${d}i${j}`}; });
 }
 
 const ZH = {1:22,2:42,3:62,4:82,5:100};
@@ -109,7 +107,8 @@ function renderHoje(){
   const wk = semanaDoPlano(dia), fer = FERIADOS[iso(dia)];
   let ctx = "";
   if (wk === null) ctx = dia < START ? `O plano de treino começa <b>segunda, 12/10</b>. Até lá, a grade já vale.` : `Ciclo de 12 semanas concluído.`;
-  else { const w = SEM[wk]; ctx = `<span class="eyebrow">Semana ${wk+1} · ${esc(w.foco)}${w.deload?" · descarga":""}</span><br>${esc(w.nota)}`; }
+  else { const w = SEM[wk], aj = ajusteDe(wk, d); ctx = `<span class="eyebrow">Semana ${wk+1} · ${esc(w.foco)}${w.deload?" · descarga":""}</span><br>${esc(w.nota)}`;
+    if (aj) ctx += `<br><b>Ajuste do dia:</b> ${esc(aj.nota)}`; }
   if (fer) ctx = `<span class="conferir">${esc(fer)}</span> ` + ctx;
   $("hoje-ctx").innerHTML = ctx ? `<div class="wknote">${ctx}</div>` : "";
 
@@ -124,9 +123,10 @@ function renderHoje(){
     : sessoesDoDia(wk, d).map(x=>card(x, wk, "hoje", true)).join("");
 
   /* agenda: só os treinos do dia; fechada mostra só o resumo */
-  const itens = blocos.filter(x=>x.k==="treino");
+  /* dia ajustado: os horários da grade são do treino que saiu, então valem os cards de cima */
+  const itens = wk !== null && ajusteDe(wk, d) ? [] : blocos.filter(x=>x.k==="treino");
   const atual = ehHoje && itens.find(x=>m>=x.i && m<x.f);
-  $("agenda-resumo").textContent = !itens.length ? "Sem treino na agenda" : atual ? `Agora: ${atual.t}` : `${itens.length} ${itens.length>1?"treinos":"treino"} · ${itens.map(x=>hhmm(x.i)).join(" e ")}`;
+  $("agenda-resumo").textContent = !itens.length ? (wk !== null && ajusteDe(wk, d) ? "Dia ajustado: horários nos treinos acima" : "Sem treino na agenda") : atual ? `Agora: ${atual.t}` : `${itens.length} ${itens.length>1?"treinos":"treino"} · ${itens.map(x=>hhmm(x.i)).join(" e ")}`;
   $("hoje-agenda").innerHTML = itens.map(x=>{
     const cls = [CAT[x.k].cls, x.opt?"opt":"", ehHoje && m>=x.f ? "past":"", ehHoje && m>=x.i && m<x.f ? "cur":""].join(" ");
     return `<li class="${cls}"><span class="h">${hhmm(x.i)}–${hhmm(x.f)}</span><div><div class="t">${esc(x.t)}</div>${x.n?`<div class="n">${esc(x.n)}</div>`:""}</div></li>`;
@@ -151,7 +151,7 @@ function renderTreinos(){
   $("days").innerHTML = DIAS.map((dn,d)=>{
     const dt = addDays(ini,d), fer = FERIADOS[iso(dt)], ss = sessoesDoDia(wk,d);
     ss.forEach(x=>{ if (x.k!=="rest"){ total++; if (store.get(x.key)==="1") feitos++; } });
-    return `<div><div class="dayh${+dt===+hj?" today":""}"><b>${dn}</b><span>${ddmm(dt)}</span>${fer?`<em>${esc(fer)}</em>`:""}</div><div class="cards">${ss.map(x=>card(x,wk,"treinos",false)).join("")}</div></div>`;
+    return `<div><div class="dayh${+dt===+hj?" today":""}"><b>${dn}</b><span>${ddmm(dt)}</span>${fer?`<em>${esc(fer)}</em>`:""}${ajusteDe(wk,d)?`<em>ajustado</em>`:""}</div><div class="cards">${ss.map(x=>card(x,wk,"treinos",false)).join("")}</div></div>`;
   }).join("");
   $("wkhead").innerHTML = `<div><span class="eyebrow">Bloco ${w.bloco} · ${BLOCOS[w.bloco-1]}${w.deload?" · descarga":""}</span><h2>Semana ${wk+1} · ${esc(w.foco)}</h2><span class="mono muted small">${ddmm(ini)} → ${ddmm(addDays(ini,6))}</span></div><span class="mono muted small" id="prog">${feitos}/${total} feitos</span>`;
   $("wknote").textContent = w.nota;
@@ -167,7 +167,8 @@ $("gtabs").addEventListener("click", e=>{ const b = e.target.closest("button[dat
 function renderAcademia(){
   document.querySelectorAll("#gtabs button").forEach(b=>b.setAttribute("aria-pressed", String(+b.dataset.b===gb)));
   $("gnote").textContent = `${BLOCOS[gb-1]}. ${GYM[gb].nota}`;
-  const letraHoje = ["B","A","D","C","E",null,null][dow(hoje0())];
+  const wh = semanaDoPlano(hoje0()), gymHoje = wh === null ? [] : sessoesDoDia(wh, dow(hoje0())).filter(x=>x.k==="gym");
+  const letraHoje = gymHoje.length ? gymHoje[0].s.letra : null;
   $("glist").innerHTML = ["A","B","C","D","E"].map(L=>{ const g = GYM_META[L], hj = L===letraHoje;
     return `<div class="card gym gw${hj?" hoje":""}">${fold(`academia:${gb}${L}`, hj,
       `<span class="ch"><span class="t"><span class="kind">${esc(g.quando)}${hj?" · hoje":""}</span><h3>${L} · ${esc(g.nome)}</h3></span><span class="dur">${g.dur}</span></span>`,
@@ -186,14 +187,16 @@ const TMB = 370 + 21.6*MAGRA; // fórmula da própria InBody (dá 1.706 com a ma
 function nutriDia(dt, semTreino){
   /* antes de 12/10 a grade já vale: estima com os treinos da semana 1. Depois do ciclo, dia leve.
      semTreino: o modelo do dia leve (nenhum dia do plano é leve, então sai sem treino). */
-  const pre = dt < START, w = pre ? 0 : semanaDoPlano(dt), d = dow(dt), tipo = w === null || semTreino ? "leve" : DIA_TIPO[d];
+  const pre = dt < START, w = pre ? 0 : semanaDoPlano(dt), d = dow(dt), aj = w === null || pre ? null : ajusteDe(w, d);
+  const tipo = w === null || semTreino ? "leve" : aj && aj.tipo || DIA_TIPO[d];
   let treino = 0, bikeMin = 0;
   if (w !== null && !semTreino){
-    sessoesDoDia(w, d).forEach(({s,k})=>{
+    const ss = sessoesDoDia(w, d);
+    ss.forEach(({s,k})=>{
       if (k === "bike" || k === "run"){ s.seg.forEach(([t,z])=>{ treino += t*GASTO[k][z]; }); if (k === "bike") bikeMin = totMin(s.seg); }
       else if (k === "gym" && s.letra !== "E") treino += parseInt(GYM_META[s.letra].dur.replace(/\D/g,""),10)*GASTO.gym*(SEM[w].deload ? 0.6 : 1);
     });
-    if (d === 1 || d === 3 || d === 5) treino += GASTO.idaVolta*GASTO.bike[1];
+    if (ss.some(x=>["ter","sex","sz2"].includes(x.id))) treino += GASTO.idaVolta*GASTO.bike[1]; // pedais que saem de casa
   }
   const base = TMB*GASTO.fator, gasto = base + treino;
   const kcal = r50(Math.max(GASTO.piso, gasto - TIPOS[tipo].deficit + ATUAL.ajuste));

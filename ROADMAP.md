@@ -3,12 +3,13 @@
 App de celular pessoal (PWA) com o plano de treino de 12 semanas, academia, nutrição e a grade da semana.
 Online em https://edulevy.github.io/rotina/ · código em `edulevy/rotina` (público).
 
-**Próximo passo:** sincronizar o relógio pelo app Garmin Connect; depois, InBody na semana 1 (12 a 18/10) e trocar `ATUAL` no `dados.js`.
+**Próximo passo:** InBody na semana 1 (12 a 18/10) e trocar `ATUAL` no `dados.js`. Cada troca de treino que o Levy fizer entra em `AJUSTES` (dados.js) + `MUDOU` (plano_treino.py) + reagendar a semana no Garmin.
 
 ## Feito
 
 | Data | O quê |
 |---|---|
+| 13/10/2026 | Ajustes do dia a dia (`AJUSTES` no dados.js): a troca vale no Hoje, nos Treinos, na Academia e na Nutrição. 1ª troca: ter 13 só academia D · qua 14 pedal 3×8' + A · qui 15 só Z2 · sex 16 corrida + C |
 | 09/10/2026 | Cada treino diz se precisa de LAP (só o teste e o reteste de subida) ou se o relógio vai sozinho, no app e no Garmin |
 | 09/10/2026 | Teste de subida (semanas 2 e 12) na Estrada do Joá por dentro da Barrinha (rua, não a ciclovia): a ida de casa é o aquecimento (sem tempo, termina no LAP), subida de ~2 km e 8–9', volta soltando. App e Garmin atualizados |
 | 09/10/2026 | Acompanhamento feito x plano no PC (ver `backup-levy/garmin`): pedir "como foi minha semana" |
