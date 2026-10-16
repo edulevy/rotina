@@ -9,6 +9,7 @@ Online em https://edulevy.github.io/rotina/ · código em `edulevy/rotina` (púb
 
 | Data | O quê |
 |---|---|
+| 16/10/2026 | Botão de tema no topo (Automático / Claro / Escuro), salvo em cada aparelho: no PC fica no escuro azul mesmo com o Windows claro |
 | 16/10/2026 | Atalho ABRIR CLAUDE PELO CELULAR.bat na pasta da rotina (sessão "Rotina" no celular; fica fora do git, é só deste PC) |
 | 16/10/2026 | Nota no Hoje: academia B como extra (não rolou na segunda, feriado). Sáb 17: se chover, academia A no lugar do Z2 (só nota, rotina igual) |
 | 16/10/2026 | Conferido: pasta do C: idêntica ao GitHub (nada perdido na mudança do F:). InBody saiu do próximo passo: o de 27/08/2025 fica só como referência |

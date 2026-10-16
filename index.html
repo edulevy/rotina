@@ -15,6 +15,34 @@
 <link rel="icon" href="icones/icone-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icones/icone-180.png">
 <link rel="stylesheet" href="app.css">
+<script>
+/* tema escolhido neste aparelho (auto | light | dark), aplicado antes de desenhar a página */
+(function(){
+  var MODOS = ["auto","light","dark"], NOMES = {auto:"◐ Automático", light:"☀ Claro", dark:"☾ Escuro"};
+  function ler(){ try { var t = localStorage.getItem("tema"); return MODOS.indexOf(t) >= 0 ? t : "auto"; } catch(e){ return "auto"; } }
+  function aplicar(t){
+    var r = document.documentElement;
+    if (t === "auto") r.removeAttribute("data-theme"); else r.setAttribute("data-theme", t);
+    var metas = document.querySelectorAll('meta[name="theme-color"]');
+    for (var i = 0; i < metas.length; i++) {
+      var escuro = metas[i].content === "#0e1419";
+      metas[i].media = t === "auto" ? (escuro ? "(prefers-color-scheme: dark)" : "(prefers-color-scheme: light)")
+                                    : ((t === "dark") === escuro ? "all" : "not all");
+    }
+    var b = document.getElementById("tema");
+    if (b) { b.textContent = NOMES[t]; b.setAttribute("aria-label", "Tema: " + NOMES[t].slice(2) + ". Tocar para trocar"); }
+  }
+  aplicar(ler());
+  document.addEventListener("DOMContentLoaded", function(){
+    aplicar(ler());
+    document.getElementById("tema").addEventListener("click", function(){
+      var t = MODOS[(MODOS.indexOf(ler()) + 1) % MODOS.length];
+      try { localStorage.setItem("tema", t); } catch(e){}
+      aplicar(t);
+    });
+  });
+})();
+</script>
 </head>
 <body>
 
@@ -22,6 +50,7 @@
   <div class="top-in">
     <span class="eyebrow" id="top-sub"></span>
     <h1 id="top-tit">Hoje</h1>
+    <button type="button" class="tema" id="tema">◐ Automático</button>
   </div>
 </header>
 

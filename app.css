@@ -10,7 +10,8 @@
   --f-data:ui-monospace,"SF Mono",Consolas,monospace;
   --tabh:58px;
 }
-@media (prefers-color-scheme: dark){:root{
+/* tema: Automático segue o aparelho; Claro/Escuro (botão no topo) ficam salvos em cada aparelho */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0e1419; --surface:#161f27; --sunk:#1d2832; --ink:#e4eaee; --muted:#95a3b0; --line:#2a3743;
   --accent:#3bbfad; --accent-ink:#0b1b18; --now:#ff6b9a;
   --z1:#7d93a8; --z2:#2fb39f; --z3:#e5b740; --z4:#f08745; --z5:#e45a5a;
@@ -18,6 +19,15 @@
   --c-foco:#7d95f0; --c-estudo:#93a8f2; --c-leve:#a3afd6; --c-trab:#e3a33c; --c-treino:#3bbfad;
   --c-plano:#c27ad6; --c-rotina:#8b93a1; --c-livre:#94c25e; --c-sono:#5a6478; --fill:22%;
   --warn-bg:#3a2f12; --warn-ink:#f1d48a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1419; --surface:#161f27; --sunk:#1d2832; --ink:#e4eaee; --muted:#95a3b0; --line:#2a3743;
+  --accent:#3bbfad; --accent-ink:#0b1b18; --now:#ff6b9a;
+  --z1:#7d93a8; --z2:#2fb39f; --z3:#e5b740; --z4:#f08745; --z5:#e45a5a;
+  --bike:#3bbfad; --run:#a585e0; --gym:#6b9be0; --rest:#7f8d99;
+  --c-foco:#7d95f0; --c-estudo:#93a8f2; --c-leve:#a3afd6; --c-trab:#e3a33c; --c-treino:#3bbfad;
+  --c-plano:#c27ad6; --c-rotina:#8b93a1; --c-livre:#94c25e; --c-sono:#5a6478; --fill:22%;
+  --warn-bg:#3a2f12; --warn-ink:#f1d48a; color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
 
 *{box-sizing:border-box}
 /* jeito de app: a página não rola nem estica; só o <main> rola, sem barrinha e sem zoom */
@@ -40,7 +50,9 @@ button{font:inherit;color:inherit}
 /* topo e abas */
 .top{flex:none;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);
   padding:calc(env(safe-area-inset-top) + 10px) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left))}
-.top-in{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:2px}
+.top-in{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:2px;position:relative}
+.tema{position:absolute;right:0;bottom:2px;border:1px solid var(--line);background:var(--surface);color:var(--muted);
+  border-radius:999px;padding:4px 10px;font-size:.75rem;font-weight:600;cursor:pointer}
 .top h1{font-size:1.75rem;font-weight:800;letter-spacing:-.01em}
 main{flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   padding:16px max(16px, env(safe-area-inset-right)) calc(var(--tabh) + env(safe-area-inset-bottom) + 28px) max(16px, env(safe-area-inset-left))}
