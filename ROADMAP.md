@@ -9,6 +9,7 @@ Online em https://edulevy.github.io/rotina/ · código em `edulevy/rotina` (púb
 
 | Data | O quê |
 |---|---|
+| 16/10/2026 | Registrado o real da semana 1: qua 14 pedal não rolou (chuva) · qui 15 foi academia C (no relógio como Cardio) · sex 16 só corrida 2. Grade e Garmin sem mudança |
 | 13/10/2026 | Ajustes do dia a dia (`AJUSTES` no dados.js): a troca vale no Hoje, nos Treinos, na Academia e na Nutrição. 1ª troca: ter 13 só academia D · qua 14 pedal 3×8' + A · qui 15 só Z2 · sex 16 corrida + C |
 | 09/10/2026 | Cada treino diz se precisa de LAP (só o teste e o reteste de subida) ou se o relógio vai sozinho, no app e no Garmin |
 | 09/10/2026 | Teste de subida (semanas 2 e 12) na Estrada do Joá por dentro da Barrinha (rua, não a ciclovia): a ida de casa é o aquecimento (sem tempo, termina no LAP), subida de ~2 km e 8–9', volta soltando. App e Garmin atualizados |
