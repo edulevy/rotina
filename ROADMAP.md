@@ -3,12 +3,13 @@
 App de celular pessoal (PWA) com o plano de treino de 12 semanas, academia, nutrição e a grade da semana.
 Online em https://edulevy.github.io/rotina/ · código em `edulevy/rotina` (público).
 
-**Próximo passo:** InBody na semana 1 (12 a 18/10) e trocar `ATUAL` no `dados.js`. Cada troca de treino que o Levy fizer entra em `AJUSTES` (dados.js) + `MUDOU` (plano_treino.py) + reagendar a semana no Garmin.
+**Próximo passo:** seguir a semana 2 do plano. Cada troca de treino que o Levy fizer entra em `AJUSTES` (dados.js) + `MUDOU` (plano_treino.py) + reagendar a semana no Garmin.
 
 ## Feito
 
 | Data | O quê |
 |---|---|
+| 16/10/2026 | Conferido: pasta do C: idêntica ao GitHub (nada perdido na mudança do F:). InBody saiu do próximo passo: o de 27/08/2025 fica só como referência |
 | 16/10/2026 | Registrado o real da semana 1: qua 14 pedal não rolou (chuva) · qui 15 foi academia C (no relógio como Cardio) · sex 16 só corrida 2. Grade e Garmin sem mudança |
 | 13/10/2026 | Ajustes do dia a dia (`AJUSTES` no dados.js): a troca vale no Hoje, nos Treinos, na Academia e na Nutrição. 1ª troca: ter 13 só academia D · qua 14 pedal 3×8' + A · qui 15 só Z2 · sex 16 corrida + C |
 | 09/10/2026 | Cada treino diz se precisa de LAP (só o teste e o reteste de subida) ou se o relógio vai sozinho, no app e no Garmin |
@@ -26,7 +27,7 @@ Online em https://edulevy.github.io/rotina/ · código em `edulevy/rotina` (púb
 
 ## Por fazer
 
-- [ ] InBody na semana 1 (12 a 18/10) e trocar `ATUAL` (peso e %) no `dados.js`
+- [ ] (Opcional, se fizer um dia) InBody novo e trocar `ATUAL` (peso e %) no `dados.js`
 - [ ] Registrar o peso semanal no app
 - [ ] Refeições no modo "com trabalho à tarde"
 - [ ] Marcar refeição feita, igual aos treinos
