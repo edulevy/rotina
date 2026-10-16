@@ -216,9 +216,9 @@ const GYM = {
    O Garmin segue a mesma troca: MUDOU no plano_treino.py (backup-levy/garmin). */
 const AJUSTES = {
   "2026-10-13": {itens:["D"], tipo:"moderado", nota:"Trocado com a quarta: o pedal não rolou de manhã. Hoje só academia D (superiores + core), perna descansando pros tiros de amanhã."},
-  "2026-10-14": {itens:["ter","A"], tipo:"duro", nota:"O pedal de terça veio pra cá: 3×8' de manhã (rua ou spinning, pela FC) e academia A à noite."},
-  "2026-10-15": {itens:["sex"], tipo:"moderado", nota:"Só o Z2: a academia C foi pra sexta, pra não fazer perna dois dias seguidos."},
-  "2026-10-16": {itens:["r2","C"], tipo:"duro", nota:"Academia C no lugar da E (veio da quinta)."}
+  "2026-10-14": {itens:["ter","A"], tipo:"duro", nota:"O pedal de terça veio pra cá: 3×8' de manhã (rua ou spinning, pela FC) e academia A à noite. (Não rolou: chuva.)"},
+  "2026-10-15": {itens:["C"], tipo:"moderado", nota:"Feito: academia C (gravada no relógio como Cardio, 76'). O Z2 não rolou."},
+  "2026-10-16": {itens:["r2"], tipo:"moderado", nota:"A academia C já foi ontem. Choveu: sem pedal; só a corrida 2 se der."}
 };
 
 return {START, FERIADOS, BLOCOS, SEM, GYM, GYM_META, AJUSTES};
