@@ -219,7 +219,7 @@ const AJUSTES = {
   "2026-10-14": {itens:["ter","A"], tipo:"duro", nota:"O pedal de terça veio pra cá: 3×8' de manhã (rua ou spinning, pela FC) e academia A à noite. (Não rolou: chuva.)"},
   "2026-10-15": {itens:["C"], tipo:"moderado", nota:"Feito: academia C (gravada no relógio como Cardio, 76'). O Z2 não rolou."},
   "2026-10-16": {itens:["r2"], tipo:"moderado", nota:"A academia C já foi ontem. Choveu: sem pedal; só a corrida 2 se der. EXTRA (fecha o buraco da academia B, que não rolou na segunda): superiores, carga em que sobram 3–4 repetições · Supino com halteres 3×12 (90\") · Remada curvada com halteres 3×12 (90\") · Desenvolvimento sentado 3×10 (60\") · Puxada frente 3×12 (60\") · Face pull 3×15 (45\") · Dead bug 3×10/lado (45\"). Perna descansa: ontem foi C."},
-  "2026-10-17": {itens:["r2"], tipo:"moderado", nota:"TESTE: o pedal Z2 de hoje virou corrida."}
+  "2026-10-17": {itens:["sz2"], tipo:"moderado", nota:"Se chover e o pedal não rolar: academia A (perna força) no lugar, leve como manda a semana 1. Assim a semana fecha com as 4 academias."}
 };
 
 return {START, FERIADOS, BLOCOS, SEM, GYM, GYM_META, AJUSTES};
