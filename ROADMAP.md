@@ -9,7 +9,7 @@ Online em https://edulevy.github.io/rotina/ · código em `edulevy/rotina` (púb
 
 | Data | O quê |
 |---|---|
-| 20/10/2026 | Semana 2: ter 20 choveu, fez Z2 leve + academia A · qua 21 pedal com a Raiane (Z2 + sprints) + D · qui 22 teste de subida + C. App e MUDOU feitos; Garmin espera o login (expirou) |
+| 20/10/2026 | Semana 2: ter 20 choveu, fez Z2 leve + academia A · qua 21 pedal com a Raiane (Z2 + sprints) + D · qui 22 teste de subida + C. App, MUDOU e Garmin (semana 2 reenviada em 21/10, login refeito) |
 | 16/10/2026 | Botão de tema no topo (Automático / Claro / Escuro), salvo em cada aparelho: no PC fica no escuro azul mesmo com o Windows claro |
 | 16/10/2026 | Atalho ABRIR CLAUDE PELO CELULAR.bat na pasta da rotina (sessão "Rotina" no celular; fica fora do git, é só deste PC) |
 | 16/10/2026 | Nota no Hoje: academia B como extra (não rolou na segunda, feriado). Sáb 17: se chover, academia A no lugar do Z2 (só nota, rotina igual) |

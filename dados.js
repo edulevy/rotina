@@ -220,8 +220,8 @@ const AJUSTES = {
   "2026-10-15": {itens:["C"], tipo:"moderado", nota:"Feito: academia C (gravada no relógio como Cardio, 76'). O Z2 não rolou."},
   "2026-10-16": {itens:["r2"], tipo:"moderado", nota:"A academia C já foi ontem. Choveu: sem pedal; só a corrida 2 se der. EXTRA (fecha o buraco da academia B, que não rolou na segunda): superiores, carga em que sobram 3–4 repetições · Supino com halteres 3×12 (90\") · Remada curvada com halteres 3×12 (90\") · Desenvolvimento sentado 3×10 (60\") · Puxada frente 3×12 (60\") · Face pull 3×15 (45\") · Dead bug 3×10/lado (45\"). Perna descansa: ontem foi C."},
   "2026-10-17": {itens:["sz2"], tipo:"moderado", nota:"Se chover e o pedal não rolar: academia A (perna força) no lugar, leve como manda a semana 1. Assim a semana fecha com as 4 academias."},
-  "2026-10-20": {itens:["A"], tipo:"moderado", nota:"Choveu: o teste de subida passou pra quinta. Feito: Z2 leve + academia A (perna)."},
-  "2026-10-21": {itens:["sex","D"], tipo:"moderado", nota:"Pedal com a Raiane: o Z2 + sprints de quinta veio pra cá. Pedala no ritmo dela em Z2; se ela topar, os 6 sprints de 10\" numa reta e espera ela entre eles. Perna leve: o teste é amanhã. Academia D (superiores + core) à noite."},
+  "2026-10-20": {itens:["A"], tipo:"moderado", nota:"Choveu: o teste de subida passou pra quinta. Feito: Z2 leve (45', FC 111, perfeito) + academia A (perna)."},
+  "2026-10-21": {itens:["sex","D"], tipo:"moderado", nota:"Feito de manhã: Z2 + sprints (66', 28 km, FC média 142: o Z2 passou do teto, tudo bem). À noite: academia D (superiores + core). Sem corrida hoje: perna descansada pro teste de amanhã."},
   "2026-10-22": {itens:["ter","C"], tipo:"duro", nota:"Teste de subida (veio da terça, que choveu). Choveu de novo ou chão molhado? Faz o Z2 de 60' e o teste vai pro sábado no lugar do Z2. Academia C à noite."}
 };
 
