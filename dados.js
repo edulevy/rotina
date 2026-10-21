@@ -222,7 +222,9 @@ const AJUSTES = {
   "2026-10-17": {itens:["sz2"], tipo:"moderado", nota:"Se chover e o pedal não rolar: academia A (perna força) no lugar, leve como manda a semana 1. Assim a semana fecha com as 4 academias."},
   "2026-10-20": {itens:["A"], tipo:"moderado", nota:"Choveu: o teste de subida passou pra quinta. Feito: Z2 leve (45', FC 111, perfeito) + academia A (perna)."},
   "2026-10-21": {itens:["sex","D"], tipo:"moderado", nota:"Feito de manhã: Z2 + sprints (66', 28 km, FC média 142: o Z2 passou do teto, tudo bem). À noite: academia D (superiores + core). Sem corrida hoje: perna descansada pro teste de amanhã."},
-  "2026-10-22": {itens:["ter","C"], tipo:"duro", nota:"Teste de subida (veio da terça, que choveu). Choveu de novo ou chão molhado? Faz o Z2 de 60' e o teste vai pro sábado no lugar do Z2. Academia C à noite."}
+  "2026-10-22": {itens:["ter","C"], tipo:"duro", nota:"Teste de subida de manhã (veio da terça, que choveu): ~40', só 9' forte. Chão molhado? Faz um Z2 leve e o teste vai pro sábado. Academia C só se der antes de sair à noite; senão, fica fora desta semana (a perna já fez A na terça)."},
+  "2026-10-23": {itens:[], tipo:"leve", nota:"Livre: saiu na quinta à noite. A corrida 2 foi pro sábado. Dorme o que precisar."},
+  "2026-10-24": {itens:["r2","E"], tipo:"vespera", nota:"A corrida 2 (veio da sexta) no lugar do Z2 de pedal: 29' de trote/caminhada, leve. Mobilidade E se quiser. Amanhã é o longo de 2h15."}
 };
 
 return {START, FERIADOS, BLOCOS, SEM, GYM, GYM_META, AJUSTES};
